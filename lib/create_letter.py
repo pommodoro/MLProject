@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 %matplotlib inline
 
+# aman gulati
 
 def create_letter(a, add_noise = False):
 
