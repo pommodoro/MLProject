@@ -1,5 +1,7 @@
-
+##
 ## main 
+##
+
 
 from __future__ import absolute_import
 from __future__ import division
@@ -10,7 +12,6 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-#get_ipython().magic('matplotlib inline')
 
 # Import script with auxiliar functions
 import aux_functions as aux
@@ -22,7 +23,7 @@ def main(unused_argv):
   ## Generate letters E,F,L
   ############################################
 
-  train_data, train_labels, test_data, test_labels = aux.generateLetterData( 6000, 1200 )
+  train_data, train_labels, test_data, test_labels = aux.generateLetterData( 6000, 1200, True, 234 )
 
   print("Letter Data Dimensions")
   print("train_data")
@@ -34,37 +35,48 @@ def main(unused_argv):
   print("test_labels")
   print(test_labels.shape)
 
+  ############################################
+  ## Run session
+  ############################################
+  with tf.Graph().as_default():
+    
+    with tf.Session() as sess:
 
-  # Create the Estimator
-  net_classifier = tf.estimator.Estimator(
-    model_fn=aux.slides_network, model_dir="/tmp/slides_model")
 
-  # Set up logging for predictions
-  tensors_to_log = {"probabilities": "softmax_tensor"}
-  logging_hook = tf.train.LoggingTensorHook(
-      tensors=tensors_to_log, every_n_iter=50)
+        # instatiate Network
+        net = aux.SlidesNetwork(sess, 64, 3, 2)
 
-  # Train the model
-  train_input_fn = tf.estimator.inputs.numpy_input_fn(
-    x={"x": train_data},
-    y=train_labels,
-    batch_size=100,
-    num_epochs=None,
-    shuffle=True)
-  net_classifier.train(
-    input_fn=train_input_fn,
-    steps=20000,
-    hooks=[logging_hook])
+        # usual tf initialization
+        sess.run(tf.global_variables_initializer())
 
-  # Evaluate the model and print results
-  eval_input_fn = tf.estimator.inputs.numpy_input_fn(
-    x={"x": test_data},
-    y=test_labels,
-    num_epochs=1,
-    shuffle=False)
-  eval_results = net_classifier.evaluate(input_fn=eval_input_fn)
-  print(eval_results)
-  
+        # make labels one-hot encoded
+        onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth = 3 )
+
+        # print MSE before training
+        print('error rate BEFORE training is {}'.format((np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
+
+        # train network
+        net.train( train_data, onehot_labels_train.eval() )
+
+        # now train...
+        for i in range(3000):
+            net.train(train_data,onehot_labels_train.eval())
+        
+        # print MSE after training
+        print('error rate AFTER training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
+
+        # get weights for each node
+        node1, node2 = net.getWeights()
+
+        # plot weights for node 1
+        plt.imshow( node1.eval(), cmap = "gray")
+        plt.show()
+
+        # plot weights for node 2
+        plt.imshow( node2.eval(), cmap = "gray")
+        plt.show()
+
+
 
 if __name__ == "__main__":
   tf.app.run()
