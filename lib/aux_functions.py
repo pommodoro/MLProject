@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import random
+import math
 
 # set seed for the whole code
 random.seed(234)
@@ -137,3 +138,35 @@ class SlidesNetwork:
         return self.loss
 
 
+def activate(layer,image):
+    """
+    Within a tensorflow session, calls plotfilter
+    to display the activations of trained filters in a specific layer
+    after passsing an image.
+
+    Parameters
+    ----
+    layer: int
+    image: ndarray of length 784
+    """
+
+    conv_layer=sess.run(layer, feed_dict={x:np.reshape(image,[ 1,784], order='F')})
+    plotfilter(conv_layer)
+    
+def plotfilter(conv_layer):
+    """
+    
+
+    Parameters
+    ----
+    conv_layer = [?, 28, 28, 32] tensor
+    """
+    
+    filters=conv_layer.shape[3]
+    plt.figure(1,figsize=(25,25))
+    n_columns = 6
+    n_rows = math.ceil(filters / n_columns) + 1
+    for i in range(filters):
+        plt.subplot(n_rows, n_columns, i+1)
+        plt.title('Filter ' + str(i))
+        plt.imshow(conv_layer[0,:,:,i], interpolation="nearest", cmap="gray")
