@@ -144,23 +144,24 @@ class CnnMnist:
             self.inDim  = inDim
             self.outDim = outDim
             self.sess   = session
-            self.deconv = self.deconvProcess( inputImage, inputLabel )
+            self.deconv1 = self.deconvLayer1( inputImage, inputLabel )
+            self.deconv2 = self.deconvLayer2( inputImage, inputLabel )
 
 
-        def deconvProcess( self, inputImage, inputLabel ):
+        def deconvLayer1( self, inputImage, inputLabel ):
 
         	#
         	## Deconvoluting 1st layer
         	##
-
-        	#unPool1PlaceHolder = tf.placeholder("float",[None,14,14,32])
-        	#unConv1PlaceHolder = tf.placeholder("float",[None,28,28,32])
             
             # get activations for layer 1
             activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
 
-        	# unpool
-        	unPool1 = self.unpool( self.cnn.pool1 )
+            # convert from array to tensor
+            act1_tf = tf.convert_to_tensor( activations1, np.float32 )
+
+            # unpool
+            unPool1 = self.unpool( act1_tf )
 
             # unrelu
             unRelu1 = tf.nn.relu( unPool1 )
@@ -174,58 +175,85 @@ class CnnMnist:
                 strides = [1, 1, 1, 1],
                 padding = "SAME"  )
 
-            return unConv1# self.sess.run( unConv1 )
+            return unConv1
 
 
-        	# ##
-        	# ## Deconvoluting 2nd layer
-        	# ##
+        def deconvLayer2( self, inputImage, inputLabel ):
 
-        	# #unPool2PlaceHolder = tf.placeholder("float",[None,7,7,32])
-        	# #self.unConv2PlaceHolder = tf.placeholder("float",[None,14,14,32])
 
-        	# # 1st unpool
-        	# #self.unPool21 = self.unpool( self.cnn.pool2 )
+            ##
+            ## Deconvoluting 2nd layer
+            ##
 
-        	# # 1st unrelu and deconvolution
-        	# self.unConv21 = tf.layers.conv2d_transpose( 
-        	#     #inputs = self.unPool21, 
-        	#     inputs = self.cnn.conv2, 
-        	#     filters = 64, 
-        	#     kernel_size=[5,5], 
-        	#     padding="SAME",
-        	#     activation = tf.nn.relu,
-        	#     use_bias = False )
+            # get activations for layer 2
+            activations2 = self.calculateActivations(inputImage, inputLabel, 2)
 
-        	# # 2nd unpool
-        	# self.unPool22 = self.unpool( self.unConv21 )
+            # convert from array to tensor
+            act1_tf = tf.convert_to_tensor( activations2, np.float32 )
 
-        	# # 2nd deconvolution
-        	# self.unConv22 = tf.layers.conv2d_transpose( 
-        	#     inputs = self.unPool22, 
-        	#     filters = 32, 
-        	#     kernel_size=[5,5], 
-        	#     padding="SAME",
-        	#     activation = tf.nn.relu, 
-        	#     use_bias = False )
+            # 1st unpool
+            unPool1 = self.unpool( act1_tf )
 
-        	# # get activations for layer 2
-        	# self.activations2 = self.calculateActivations(inputImage, inputLabel, 2)
+            # 1st unrelu
+            unRelu1 = tf.nn.relu( unPool1 )
+
+            # 1st deconvolute (filter)
+            unConv1 = tf.nn.conv2d_transpose( 
+                #activations1,
+                unRelu1,
+                self.cnn.W_c2,
+                output_shape = [ inputImage.shape[0], 14, 14, 32],
+                strides = [1, 1, 1, 1],
+                padding = "SAME"  )
+
+            # 2nd unpool
+            unPool2 = self.unpool( unConv1 )
+
+            # 2nd relu
+            unRelu2 = tf.nn.relu( unPool2 )
+
+            # 2nd deconvolute (filter)
+            # 1st deconvolute (filter)
+            unConv2 = tf.nn.conv2d_transpose( 
+                #activations1,
+                unRelu2,
+                self.cnn.W_c1,
+                output_shape = [ inputImage.shape[0], 28, 28, 1],
+                strides = [1, 1, 1, 1],
+                padding = "SAME"  )
+
+            return unConv2
 
 
         # calculate activations for layer (1 or 2)
         def calculateActivations( self, inputImage, inputLabel, layer ):
 
             if( layer == 1 ):
-                #return self.cnn.conv1.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.inDim])})
                 return self.cnn.pool1.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.inDim])})
             else:
-                #return self.cnn.conv2.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.inDim])})
                 return self.cnn.pool2.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.inDim])})
 
 
         def getDeconv( self ):
-            return self.deconv
+            return self.deconv1, self.deconv2
+
+        # method to unpool (taken from kvfrans - put link!)
+        def unpool( self, value ):
+            """N-dimensional version of the unpooling operation from
+            https://www.robots.ox.ac.uk/~vgg/rg/papers/Dosovitskiy_Learning_to_Generate_2015_CVPR_paper.pdf
+
+            :param value: A Tensor of shape [b, d0, d1, ..., dn, ch]
+            :return: A Tensor of shape [b, 2*d0, 2*d1, ..., 2*dn, ch]
+            """
+            #with tf.name_scope(name) as scope:
+            sh = value.get_shape().as_list()
+            dim = len(sh[1:-1])
+            out = (tf.reshape(value, [-1] + sh[-dim:]))
+            for i in range(dim, 0, -1):
+                out = tf.concat( [out, out], i)
+            out_size = [-1] + [s * 2 for s in sh[1:-1]] + [sh[-1]]
+            out = tf.reshape(out, out_size)#, name=scope)
+            return out
 
 
         #def displayFeatures( self, layer ):
