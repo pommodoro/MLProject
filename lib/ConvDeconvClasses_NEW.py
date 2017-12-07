@@ -159,8 +159,11 @@ class CnnMnist:
             # get activations for layer 1
             activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
 
-        	# unpool
-        	unPool1 = self.unpool( self.cnn.pool1 )
+            # convert from array to tensor
+            act1_tf = tf.convert_to_tensor( activations1, np.float32 )
+
+            # unpool
+            unPool1 = self.unpool( act1_tf )
 
             # unrelu
             unRelu1 = tf.nn.relu( unPool1 )
@@ -174,7 +177,7 @@ class CnnMnist:
                 strides = [1, 1, 1, 1],
                 padding = "SAME"  )
 
-            return unConv1# self.sess.run( unConv1 )
+            return unConv1
 
 
         	# ##
@@ -226,6 +229,24 @@ class CnnMnist:
 
         def getDeconv( self ):
             return self.deconv
+
+        # method to unpool (taken from kvfrans - put link!)
+        def unpool( self, value ):
+            """N-dimensional version of the unpooling operation from
+            https://www.robots.ox.ac.uk/~vgg/rg/papers/Dosovitskiy_Learning_to_Generate_2015_CVPR_paper.pdf
+
+            :param value: A Tensor of shape [b, d0, d1, ..., dn, ch]
+            :return: A Tensor of shape [b, 2*d0, 2*d1, ..., 2*dn, ch]
+            """
+            #with tf.name_scope(name) as scope:
+            sh = value.get_shape().as_list()
+            dim = len(sh[1:-1])
+            out = (tf.reshape(value, [-1] + sh[-dim:]))
+            for i in range(dim, 0, -1):
+                out = tf.concat( [out, out], i)
+            out_size = [-1] + [s * 2 for s in sh[1:-1]] + [sh[-1]]
+            out = tf.reshape(out, out_size)#, name=scope)
+            return out
 
 
         #def displayFeatures( self, layer ):

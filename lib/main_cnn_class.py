@@ -25,10 +25,10 @@ def main(unused_argv):
 
   # Load training and eval data
   mnist        = tf.contrib.learn.datasets.load_dataset("mnist")
-  train_data   = mnist.train.images[0:10000] # Returns np.array - reading only 1000 images
-  train_labels = np.asarray(mnist.train.labels[0:10000], dtype=np.int32) # - reading only 1000 images
-  eval_data    = mnist.test.images[0:2000] # Returns np.array - reading only 200 images
-  eval_labels  = np.asarray(mnist.test.labels[0:2000], dtype=np.int32) # - reading only 200 images
+  train_data   = mnist.train.images[0:1000] # Returns np.array - reading only 1000 images
+  train_labels = np.asarray(mnist.train.labels[0:1000], dtype=np.int32) # - reading only 1000 images
+  eval_data    = mnist.test.images[0:200] # Returns np.array - reading only 200 images
+  eval_labels  = np.asarray(mnist.test.labels[0:200], dtype=np.int32) # - reading only 200 images
 
 
   ############################################
@@ -61,7 +61,7 @@ def main(unused_argv):
         net.train( train_data, onehot_labels_train.eval() )
 
         # now train...
-        for i in range(60):
+        for i in range(2):
             net.train(train_data,onehot_labels_train.eval())
             print('error rate during training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
         
@@ -82,13 +82,14 @@ def main(unused_argv):
 
         print( "\nDimension of Deconvoluted images")
         print( dec1.shape )
+        print( dec1 )
 
         a1 = dec1.eval()
         plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
         plt.show()
 
-        #plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
-        #plt.show()
+        # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
+        # plt.show()
 
 
 if __name__ == "__main__":
