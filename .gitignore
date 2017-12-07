@@ -3,20 +3,14 @@
 
 lib/__pycache__/ConvDeconvClasses.cpython-36.pyc
 
-lib/tmp/checkpoint
+<<<<<<< HEAD
 
-lib/tmp/cnn_mnist.ckpt.data-00000-of-00001
+lib/__pycache__/ConvDeconvClasses_NEW.cpython-36.pyc
 
-lib/tmp/cnn_mnist.ckpt.meta
-
-lib/tmp/cnn_mnist.ckpt.index
-
-lib/mainDeconv.py
-
+lib/tmp/cnnMnist.data-00000-of-00001
+=======
 lib/tmp/cnnMnist.data-00000-of-00001
 
 lib/__pycache__/ConvDeconvClasses_NEW.cpython-36.pyc
 
-lib/tmp/cnnMnist.index
 
-lib/tmp/cnnMnist.meta

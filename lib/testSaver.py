@@ -3,6 +3,7 @@ import tensorflow as tf
 
 W_c2 = tf.get_variable(name = 'W_c2', shape = [ 5, 5, 1, 32 ] )
 
+
 with tf.Session() as sess:
 	#sess.run(tf.global_variables_initializer())
 	#saver3 = tf.train.import_meta_graph("tmp/titty.meta")
