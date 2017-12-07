@@ -1,4 +1,4 @@
-
+    
 
 ###
 ### maybe try to use tf.nn.conv2d?
@@ -19,7 +19,7 @@ class CnnMnist:
     
     def __init__( self, session, n_in, n_out, mode ):
 
-    	# instantiate session
+        # instantiate session
         self.session  = session
         self.n_in     = n_in  # 28*28
         self.n_out    = n_out # 10
@@ -112,11 +112,24 @@ class CnnMnist:
 
     # acessor method for output after convolutional layers
     def getConvs(self):
-    	return ( self.conv1, self.conv2 )
+        return ( self.conv1, self.conv2 )
 
     # acessor method for loss
     def getLoss(self):
         return self.loss
+
+    # saver method to save trained cnn in disk 
+    def netSaver(self, savePath):
+        saver = tf.train.Saver()
+        saver.save(self.session, savePath)
+        print("Model saved in file: %s" % savePath)
+
+    # loader method to restore weights of a pretrained cnn
+    def netLoader(self, loadPath):
+        loader = tf.train.Saver({"W_c1":self.W_c1, "W_c2":self.W_c2})
+        restoredModel= loader.restore(self.session, loadPath)
+        print("Model restored from %s" % loadPath)
+
 
     # method to initialize filter weights
     def initWeight(shape):
@@ -127,7 +140,7 @@ class CnnMnist:
     def createDeconvNet(self, inputImage, inputLabel):
         return CnnMnist.DeconvMnist( self, self.session, self.n_in, self.n_out, inputImage, inputLabel )
 
-
+'''
     ###
     ### Nested Class: Deconvolutional Neural Network (CNN) for MNIST
     ###
@@ -150,9 +163,9 @@ class CnnMnist:
 
         def deconvLayer1( self, inputImage, inputLabel ):
 
-        	#
-        	## Deconvoluting 1st layer
-        	##
+            #
+            ## Deconvoluting 1st layer
+            ##
             
             # get activations for layer 1
             activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
@@ -166,9 +179,9 @@ class CnnMnist:
             # unrelu
             unRelu1 = tf.nn.relu( unPool1 )
 
-        	# deconvolute (filter)
+            # deconvolute (filter)
             unConv1 = tf.nn.conv2d_transpose(  # check dimensions
-        	    #activations1,
+                #activations1,
                 unRelu1,
                 self.cnn.W_c1,
                 output_shape = [ inputImage.shape[0], 28, 28, 1],
@@ -258,46 +271,46 @@ class CnnMnist:
 
         #def displayFeatures( self, layer ):
 
-        	#isolated = self.activations1.copy()
-	        #isolated[:,:,:,:1]   = 0
-	        #isolated[:,:,:,1+1:] = 0
-	        #pixelactive = self.unConv1.eval( feed_dict = {self.unConv1PlaceHolder: isolated} )
-	        #return isolated
+            #isolated = self.activations1.copy()
+            #isolated[:,:,:,:1]   = 0
+            #isolated[:,:,:,1+1:] = 0
+            #pixelactive = self.unConv1.eval( feed_dict = {self.unConv1PlaceHolder: isolated} )
+            #return isolated
 
-        	# if layer == 1:
+            # if layer == 1:
 
-        	# 	isolated = self.activations1.copy()
-	        # 	isolated[:,:,:,:1]   = 0
-	        # 	isolated[:,:,:,1+1:] = 0
-	        # 	return isolated
-	        # 	#print("isolated shape")
-	        # 	#print (np.shape(isolated))
-	        # 	#totals = np.sum( isolated, axis = (1,2,3) )
-	        # 	#best   = np.argmin( totals, axis = 0 )
-	        # 	#print (best)
-	        # 	#pixelactive = self.unPool1.eval(feed_dict={self.unPool1PlaceHolder: isolated})
-	        # 	#pixelactive = self.unConv1.eval(feed_dict={self.unConv1PlaceHolder: isolated[5,:,:,1]})
+            # 	isolated = self.activations1.copy()
+            # 	isolated[:,:,:,:1]   = 0
+            # 	isolated[:,:,:,1+1:] = 0
+            # 	return isolated
+            # 	#print("isolated shape")
+            # 	#print (np.shape(isolated))
+            # 	#totals = np.sum( isolated, axis = (1,2,3) )
+            # 	#best   = np.argmin( totals, axis = 0 )
+            # 	#print (best)
+            # 	#pixelactive = self.unPool1.eval(feed_dict={self.unPool1PlaceHolder: isolated})
+            # 	#pixelactive = self.unConv1.eval(feed_dict={self.unConv1PlaceHolder: isolated[5,:,:,1]})
 
-	        # else:
+            # else:
 
-	        # 	# isolated = self.activations2.copy()
-	        # 	# isolated[:,:,:,:1]   = 0
-	        # 	# isolated[:,:,:,1+1:] = 0
-	        # 	# #print (np.shape(isolated))
-	        # 	# totals = np.sum( isolated, axis = (1,2,3) )
-	        # 	# best   = np.argmin( totals, axis = 0 )
-	        # 	# #print (best)
-	        # 	# #pixelactive = self.unPool2.eval(feed_dict={self.unPool2PlaceHolder: isolated})
-	        # 	# pixelactive = self.unConv2.eval(feed_dict={self.unConv2PlaceHolder: isolated})
+            # 	# isolated = self.activations2.copy()
+            # 	# isolated[:,:,:,:1]   = 0
+            # 	# isolated[:,:,:,1+1:] = 0
+            # 	# #print (np.shape(isolated))
+            # 	# totals = np.sum( isolated, axis = (1,2,3) )
+            # 	# best   = np.argmin( totals, axis = 0 )
+            # 	# #print (best)
+            # 	# #pixelactive = self.unPool2.eval(feed_dict={self.unPool2PlaceHolder: isolated})
+            # 	# pixelactive = self.unConv2.eval(feed_dict={self.unConv2PlaceHolder: isolated})
 
 
-	        # # saves pixel-representations of features from Conv layer 1
-	        # featuresReLu1 = tf.placeholder("float",[None,32,32,32])
-	        # unReLu = tf.nn.relu(featuresReLu1)
-	        # unBias = unReLu
-	        # unConv = tf.nn.conv2d_transpose(unBias, wConv1, output_shape=[batchsizeFeatures,imagesize,imagesize,colors] , strides=[1,1,1,1], padding="SAME")
-	        # activations1 = relu1.eval(feed_dict={img: inputImage, lbl: inputLabel, keepProb: 1.0})
-	        # print (np.shape(activations1))
+            # # saves pixel-representations of features from Conv layer 1
+            # featuresReLu1 = tf.placeholder("float",[None,32,32,32])
+            # unReLu = tf.nn.relu(featuresReLu1)
+            # unBias = unReLu
+            # unConv = tf.nn.conv2d_transpose(unBias, wConv1, output_shape=[batchsizeFeatures,imagesize,imagesize,colors] , strides=[1,1,1,1], padding="SAME")
+            # activations1 = relu1.eval(feed_dict={img: inputImage, lbl: inputLabel, keepProb: 1.0})
+            # print (np.shape(activations1))
         	# # display features
         	# for i in xrange(32):
         	#     isolated = self.activations1.copy()
@@ -316,4 +329,4 @@ class CnnMnist:
 
         	# return False
 
-
+'''
