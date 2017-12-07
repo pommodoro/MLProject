@@ -1,2 +1,14 @@
 
 *.ini
+
+lib/__pycache__/ConvDeconvClasses.cpython-36.pyc
+
+lib/tmp/checkpoint
+
+lib/tmp/cnn_mnist.ckpt.data-00000-of-00001
+
+lib/tmp/cnn_mnist.ckpt.meta
+
+lib/tmp/cnn_mnist.ckpt.index
+
+lib/mainDeconv.py
