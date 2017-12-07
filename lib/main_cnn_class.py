@@ -61,7 +61,7 @@ def main(unused_argv):
         net.train( train_data, onehot_labels_train.eval() )
 
         # now train...
-        for i in range(2):
+        for i in range(1):
             net.train(train_data,onehot_labels_train.eval())
             print('error rate during training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
         
@@ -78,15 +78,20 @@ def main(unused_argv):
         print( "\nNumber of Images")
         print( train_data.shape[0])
 
-        dec1  = DeconvNet.getDeconv()
+        dec1, dec2  = DeconvNet.getDeconv()
 
-        print( "\nDimension of Deconvoluted images")
+        print( "\nDimension of Deconvoluted images - Layer 1")
         print( dec1.shape )
         print( dec1 )
 
-        a1 = dec1.eval()
+        print( "\nDimension of Deconvoluted images - Layer 2")
+        print( dec2.shape )
+        print( dec2 )
+
+        a1 = dec2.eval()
         plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
         plt.show()
+
 
         # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
         # plt.show()
