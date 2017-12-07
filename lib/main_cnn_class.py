@@ -65,6 +65,10 @@ def main(unused_argv):
             net.train(train_data,onehot_labels_train.eval())
             print('error rate during training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
         
+        # save the trained network 
+        net.netSaver("./tmp/cnnMnist")
+
+        '''
         ##
         ## Deconvolution Part - until here it runs OK
         ##
@@ -96,7 +100,7 @@ def main(unused_argv):
         # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
         # plt.show()
 
-
+'''
 if __name__ == "__main__":
   tf.app.run()
 
