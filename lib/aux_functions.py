@@ -54,8 +54,8 @@ def generateLetterData( trainSize, testSize, noise = True, seed = 234 ):
     train_data=np.concatenate((inp_e,inp_f,inp_l))  
 
     #Labels (1 for E, 2 for F, 3 for L)
-    train_labels=np.concatenate( (np.tile(1,[trainSize//3]), 
-      np.tile(2,[trainSize//3]), np.tile(3,[trainSize//3])) )
+    train_labels=np.concatenate( (np.tile(0,[trainSize//3]), 
+      np.tile(1,[trainSize//3]), np.tile(2,[trainSize//3])) )
 
     ##
     ## Generate test set
@@ -76,8 +76,8 @@ def generateLetterData( trainSize, testSize, noise = True, seed = 234 ):
     test_data=np.concatenate((inp_e,inp_f,inp_l))  
 
     # Labels (1 for E, 2 for F, 3 for L)
-    test_labels=np.concatenate( (np.tile(1,[testSize//3]),
-      np.tile(2,[testSize//3]), np.tile(3,[testSize//3])) )
+    test_labels=np.concatenate( (np.tile(0,[testSize//3]),
+      np.tile(1,[testSize//3]), np.tile(2,[testSize//3])) )
 
     # return np arrays
     return ( train_data, train_labels , test_data, test_labels )
