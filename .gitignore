@@ -1,2 +1,16 @@
 
 *.ini
+
+lib/__pycache__/ConvDeconvClasses.cpython-36.pyc
+
+<<<<<<< HEAD
+
+lib/__pycache__/ConvDeconvClasses_NEW.cpython-36.pyc
+
+lib/tmp/cnnMnist.data-00000-of-00001
+=======
+lib/tmp/cnnMnist.data-00000-of-00001
+
+lib/__pycache__/ConvDeconvClasses_NEW.cpython-36.pyc
+
+
