@@ -61,14 +61,14 @@ def main(unused_argv):
         net.train( train_data, onehot_labels_train.eval() )
 
         # now train...
-        for i in range(1):
+        for i in range(15):
             net.train(train_data,onehot_labels_train.eval())
             print('error rate during training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
         
         # save the trained network 
         net.netSaver("./tmp/cnnMnist")
 
-        '''
+        #''' DON'T COMMENT ME PLEASE!!!
         ##
         ## Deconvolution Part - until here it runs OK
         ##
@@ -92,15 +92,29 @@ def main(unused_argv):
         print( dec2.shape )
         print( dec2 )
 
-        a1 = dec2.eval()
-        plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
-        plt.show()
+        #a1 = dec1.eval()
+        #plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
+        #plt.show()
 
+        #conv1, conv2 = net.getConvs()
+        #a1 = conv1.eval(feed_dict = {net.x: train_data})
+        
+        print("\n")
+        a1 = DeconvNet.displayFeatures1(train_data, train_labels)
+        print(a1.shape)
+        
+        print("\n")
+        a2 = DeconvNet.displayFeatures2(train_data, train_labels)
+        print(a2.shape)      
+        
+        plt.imshow(np.array(a1[0, 1, :, :, 0]), cmap='gray')
+        plt.imshow(np.array(a2[0, 1, :, :, 0]), cmap='gray')
+        plt.show()
 
         # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
         # plt.show()
 
-'''
+#''' DON'T COMMENT ME PLEASE!!!
 if __name__ == "__main__":
   tf.app.run()
 
