@@ -10,7 +10,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import random
 import math
-
+from scipy.misc import imsave
 
 ###
 ### Convolutional Neural Network (CNN) for MNIST
@@ -140,7 +140,7 @@ class CnnMnist:
     def createDeconvNet(self, inputImage, inputLabel):
         return CnnMnist.DeconvMnist( self, self.session, self.n_in, self.n_out, inputImage, inputLabel )
 
-'''
+#''' DON'T COMMENT ME PLEASE!!!
     ###
     ### Nested Class: Deconvolutional Neural Network (CNN) for MNIST
     ###
@@ -268,14 +268,120 @@ class CnnMnist:
             out = tf.reshape(out, out_size)#, name=scope)
             return out
 
+        #Returns de deconvoluted layer1 as numpy array, with isolated nodes,
+        #and save the images on the "img" folder
+        def displayFeatures1( self, inputImage, inputLabel):
 
-        #def displayFeatures( self, layer ):
+            #
+            ## Deconvoluting 1st layer
+            ##
+            
+            # get activations for layer 1
+            activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
+            
+            filters = activations1.shape[-1]
+            batch_size = activations1.shape[0]
+            
+            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            
+            for i in range(filters):
+            # Isolate filters
+                if i % 5 == 0:
+                    print("Deconvoluting Layer 1 activation number: {}".format(i))
+                isolated = activations1.copy()
+                isolated[:,:,:,:i]   = 0
+                isolated[:,:,:,i+1:] = 0
+    
+                # convert from array to tensor
+                act1_tf = tf.convert_to_tensor( isolated, np.float32 )
+    
+                # unpool
+                unPool1 = self.unpool( act1_tf )
+    
+                # unrelu
+                unRelu1 = tf.nn.relu( unPool1 )
+    
+                # deconvolute (filter)
+                unConv1 = tf.nn.conv2d_transpose(  # check dimensions
+                    #activations1,
+                    unRelu1,
+                    self.cnn.W_c1,
+                    output_shape = [ inputImage.shape[0], 28, 28, 1],
+                    strides = [1, 1, 1, 1],
+                    padding = "SAME"  )
+                
+                u = unConv1.eval()
+                imsave("img/Deconv1_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                
+                all_isolations[i,:,:,:,:] = u
+                
+            
+            return all_isolations
 
-            #isolated = self.activations1.copy()
-            #isolated[:,:,:,:1]   = 0
-            #isolated[:,:,:,1+1:] = 0
-            #pixelactive = self.unConv1.eval( feed_dict = {self.unConv1PlaceHolder: isolated} )
-            #return isolated
+
+        def displayFeatures2( self, inputImage, inputLabel):
+
+            ##
+            ## Deconvoluting 2nd layer
+            ##
+
+            # get activations for layer 2
+            activations2 = self.calculateActivations(inputImage, inputLabel, 2)
+            
+            filters = activations2.shape[-1]
+            batch_size = activations2.shape[0]
+            
+            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            
+            for i in range(filters):
+            # Isolate filters
+                if i % 5 == 0:
+                    print("Deconvoluting Layer 2 activation number: {}".format(i))
+                isolated = activations2.copy()
+                isolated[:,:,:,:i]   = 0
+                isolated[:,:,:,i+1:] = 0
+    
+                # convert from array to tensor
+                act1_tf = tf.convert_to_tensor( isolated, np.float32 )
+    
+                # 1st unpool
+                unPool1 = self.unpool( act1_tf )
+    
+                # 1st unrelu
+                unRelu1 = tf.nn.relu( unPool1 )
+    
+                # 1st deconvolute (filter)
+                unConv1 = tf.nn.conv2d_transpose( 
+                    #activations1,
+                    unRelu1,
+                    self.cnn.W_c2,
+                    output_shape = [ inputImage.shape[0], 14, 14, 32],
+                    strides = [1, 1, 1, 1],
+                    padding = "SAME"  )
+    
+                # 2nd unpool
+                unPool2 = self.unpool( unConv1 )
+    
+                # 2nd relu
+                unRelu2 = tf.nn.relu( unPool2 )
+    
+                # 2nd deconvolute (filter)
+                # 1st deconvolute (filter)
+                unConv2 = tf.nn.conv2d_transpose( 
+                    #activations1,
+                    unRelu2,
+                    self.cnn.W_c1,
+                    output_shape = [ inputImage.shape[0], 28, 28, 1],
+                    strides = [1, 1, 1, 1],
+                    padding = "SAME"  )
+                
+                u = unConv2.eval()
+                imsave("img/Deconv2_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                
+                all_isolations[i,:,:,:,:] = u
+                
+            
+            return all_isolations
 
             # if layer == 1:
 
@@ -329,4 +435,4 @@ class CnnMnist:
 
         	# return False
 
-'''
+#''' DON'T COMMENT ME PLEASE!!!
