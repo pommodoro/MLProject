@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import script with auxiliar functions
-import ConvDeconvClasses_NEW as nets
+import ConvDeconvClassesMnist as nets
 
 
 def main(unused_argv):
