@@ -49,12 +49,13 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         self.strideFilter3 = strideFilter3
 
         # data placeholders
-        self.x    = tf.placeholder(tf.float32, [None, n_in], name='x')
+        #self.x    = tf.placeholder(tf.float32, [None, n_in, n_in, nChannels], name='x')
+        self.x    = tf.placeholder(tf.float32, [None, int(n_in * n_in * nChannels )], name='x')
         self.y    = tf.placeholder(tf.float32, [None, n_out], name='y')
-        self.x_in = tf.reshape(self.x, [-1, self.n_in * self.n_in])
+        #self.x_in = tf.reshape(self.x, [-1, self.n_in * self.n_in])
         self.W_c1 = tf.get_variable( 'W_c1', shape = [ filterSizeConv1, filterSizeConv1, nChannels, nFiltersConv1 ] )
         self.W_c2 = tf.get_variable( 'W_c2', shape = [ filterSizeConv2, filterSizeConv2, nFiltersConv1, nFiltersConv2 ] )
-        self.W_c2 = tf.get_variable( 'W_c2', shape = [ filterSizeConv3, filterSizeConv3, nFiltersConv2, nFiltersConv3 ] )
+        self.W_c3 = tf.get_variable( 'W_c3', shape = [ filterSizeConv3, filterSizeConv3, nFiltersConv2, nFiltersConv3 ] )
 
         ##
         ## Network Architecture
@@ -126,9 +127,9 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         #
         # Dense Layer ---> PARAMETRIZE! change this 7
         #
-        nReshape = (self.n_in/filterSizePool1/filterSizePool3/filterSizePool3) * (self.n_in/filterSizePool1/filterSizePool3/filterSizePool3) * nFiltersConv3
-        pool3_flat = tf.reshape(self.pool3, [-1, nReshape])
-        dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
+        nReshape = (self.n_in/filterSizePool1/filterSizePool2/filterSizePool3) * (self.n_in/filterSizePool1/filterSizePool2/filterSizePool3) * nFiltersConv3
+        pool3_flat = tf.reshape(self.pool3, [-1, int(nReshape)])
+        dense = tf.layers.dense(inputs=pool3_flat, units=1024, activation=tf.nn.relu)
         dropout = tf.layers.dropout(
             inputs=dense, rate=0.4, training = self.mode )
 
@@ -146,12 +147,14 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
     
     # method to compute y given x
     def compute(self, x):
-        return self.session.run(self.q, feed_dict={self.x:np.reshape(x,[-1,self.n_in*self.n_in])})
+        return self.session.run(self.q, feed_dict={self.x:np.reshape(x,[-1,int(self.n_in*self.n_in*self.nChannels)])})
+        #return self.session.run(self.q, feed_dict={self.x:np.reshape(x,[-1, self.n_in, self.n_in, self.nChannels])})
     
     # method to train network
     def train(self, x_batch, y_batch): 
         # take a training step
-       _ = self.session.run(self.train_step, feed_dict={self.x: x_batch, self.y: y_batch})
+       #_ = self.session.run(self.train_step, feed_dict={self.x: x_batch, self.y: y_batch})
+       _ = self.session.run(self.train_step, feed_dict={self.x:np.reshape(x_batch,[-1,int(self.n_in*self.n_in*self.nChannels)]), self.y: y_batch})
 
     # acessor method for output after pooling layers
     def getPools(self):
