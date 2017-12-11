@@ -47,48 +47,41 @@ def main(unused_argv):
   #   print("Reading: ")
   #   print( fl )
 
-  #   # open image
-  #   img = Image.open( fl)
-
-  #   # if image is RGB, resize it
-  #   if img.mode == "RGB":
-  #     print("Saving image: ")
-  #     print( fl )
-  #     # resize 
-  #     img.resize((npixels,npixels), Image.ANTIALIAS)
-  #     # define file name
-  #     splitName = fl.split("/")
-  #     fileName  = splitName[len(splitName)-1]
-  #     #save
-  #     img.save( resized_train_path + fileName )
-    
-  #   # close image
-  #   img.close()
+  #   # define file name
+  #   splitName = fl.split("/")
+  #   fileName  = splitName[len(splitName)-1]
+  #   # open
+  #   img = Image.open(fl)
+  #   img = img.resize((npixels,npixels), Image.ANTIALIAS)
+  #   img.save( resized_train_path + fileName )
 
 
   ##
   ## Read resized images and store in np.array
   ##
-  # path with resized images
+  #path with resized images
   resized_train_path = "../data/dataset2/train_resized/"
   files = [resized_train_path + f for f in os.listdir(resized_train_path) if f.endswith('.jpg')]
   images = []
   for fl in files:
      img = Image.open( fl )
-     #img_array = np.array( img )
-     images.append( img )
-     img.close()
+     if img.mode == "RGB":
+      img_array = np.array( img )
+      print("image and size")
+      print( fl )
+      print( img_array.shape )
+      images.append( img_array )
+      img.close()
 
-  train_data = np.array(images)
+  train_data = np.array( images )
 
-  ## TODO: check format !!!
-  print( 'train_data_shape', train_data.shape )
+  print("train_data shape")
+  print(train_data.shape)
 
+  ##
+  ## TODO: save images array wo it is just loaded later
+  ##
 
-  #print( images.shape )
-
-      
-  # images = np.array(images)
 
   # print( images.shape )
   #plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
