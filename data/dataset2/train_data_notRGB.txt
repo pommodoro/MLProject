@@ -1,0 +1,11 @@
+../data/dataset2/train_resized/img_0379.jpg
+../data/dataset2/train_resized/img_0657.jpg
+../data/dataset2/train_resized/img_1033.jpg
+../data/dataset2/train_resized/img_1124.jpg
+../data/dataset2/train_resized/img_1154.jpg
+../data/dataset2/train_resized/img_1164.jpg
+../data/dataset2/train_resized/img_1201.jpg
+../data/dataset2/train_resized/img_1289.jpg
+../data/dataset2/train_resized/img_2154.jpg
+../data/dataset2/train_resized/img_2287.jpg
+../data/dataset2/train_resized/img_2428.jpg
