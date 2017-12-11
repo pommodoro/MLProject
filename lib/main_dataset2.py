@@ -12,6 +12,10 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+#import cv2
+from PIL import Image
+
 
 # Import script with auxiliar functions
 import ConvDeconvDataSet2 as nets
@@ -20,81 +24,140 @@ import ConvDeconvDataSet2 as nets
 def main(unused_argv):
 
   ############################################
-  ## Load MNIST data
+  ## Load Dog, Muffin, Fried Chicken data
   ############################################
 
   # Load training and eval data
-  mnist        = tf.contrib.learn.datasets.load_dataset("mnist")
-  train_data   = mnist.train.images[0:1000] # Returns np.array - reading only 1000 images
-  train_labels = np.asarray(mnist.train.labels[0:1000], dtype=np.int32) # - reading only 1000 images
-  eval_data    = mnist.test.images[0:200] # Returns np.array - reading only 200 images
-  eval_labels  = np.asarray(mnist.test.labels[0:200], dtype=np.int32) # - reading only 200 images
+  # mnist        = tf.contrib.learn.datasets.load_dataset("mnist")
+  # train_data   = mnist.train.images[0:1000] # Returns np.array - reading only 1000 images
+  # train_labels = np.asarray(mnist.train.labels[0:1000], dtype=np.int32) # - reading only 1000 images
+  # eval_data    = mnist.test.images[0:200] # Returns np.array - reading only 200 images
+  # eval_labels  = np.asarray(mnist.test.labels[0:200], dtype=np.int32) # - reading only 200 images
 
+  ###
+  ### This commented part is to resize images
+  ### 
 
-  ############################################
-  ## Run session
-  ############################################
-  with tf.Graph().as_default():
+  # # path where files are "../data/dataset2/train"
+  # train_path = "../data/dataset2/train/"
+  # resized_train_path = "../data/dataset2/train_resized/"
+  # files = [train_path + f for f in os.listdir(train_path) if f.endswith('.jpg')]
+  # npixels = 128
+  # for fl in files:
+  #   print("Reading: ")
+  #   print( fl )
+
+  #   # open image
+  #   img = Image.open( fl)
+
+  #   # if image is RGB, resize it
+  #   if img.mode == "RGB":
+  #     print("Saving image: ")
+  #     print( fl )
+  #     # resize 
+  #     img.resize((npixels,npixels), Image.ANTIALIAS)
+  #     # define file name
+  #     splitName = fl.split("/")
+  #     fileName  = splitName[len(splitName)-1]
+  #     #save
+  #     img.save( resized_train_path + fileName )
     
-    with tf.Session() as sess:
+  #   # close image
+  #   img.close()
 
 
-        # instatiate Network
-        net = nets.CnnMnist(sess, 28*28, 10, True ) # True stands for training
+  ##
+  ## Read resized images and store in np.array
+  ##
+  # path with resized images
+  resized_train_path = "../data/dataset2/train_resized/"
+  files = [resized_train_path + f for f in os.listdir(resized_train_path) if f.endswith('.jpg')]
+  images = []
+  for fl in files:
+     img = Image.open( fl )
+     #img_array = np.array( img )
+     images.append( img )
+     img.close()
 
-        #DeconvNet = net.createDeconvNet()
+  train_data = np.array(images)
 
-        #act11  = DeconvNet.calculateActivations(train_data, train_labels, 1)
-        #plt.imshow(np.array(act11[5,:,:,2]), cmap='gray')
-        #plt.show()
+  ## TODO: check format !!!
+  print( 'train_data_shape', train_data.shape )
 
-        # usual tf initialization
-        sess.run(tf.global_variables_initializer())
 
-        # make labels one-hot encoded
-        onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  10 )
+  #print( images.shape )
 
-        # print error rate before training
-        print('error rate BEFORE training is {}'.format((np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
+      
+  # images = np.array(images)
 
-        # train network
-        net.train( train_data, onehot_labels_train.eval() )
+  # print( images.shape )
+  #plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
+  #plt.show()
 
-        # now train...
-        for i in range(1):
-            net.train(train_data,onehot_labels_train.eval())
-            print('error rate during training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
+  # ############################################
+  # ## Run session
+  # ############################################
+  # with tf.Graph().as_default():
+    
+  #   with tf.Session() as sess:
+
+
+  #       # instatiate Network
+  #       net = nets.CnnMnist(sess, 28*28, 10, True ) # True stands for training
+
+  #       #DeconvNet = net.createDeconvNet()
+
+  #       #act11  = DeconvNet.calculateActivations(train_data, train_labels, 1)
+  #       #plt.imshow(np.array(act11[5,:,:,2]), cmap='gray')
+  #       #plt.show()
+
+  #       # usual tf initialization
+  #       sess.run(tf.global_variables_initializer())
+
+  #       # make labels one-hot encoded
+  #       onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  10 )
+
+  #       # print error rate before training
+  #       print('error rate BEFORE training is {}'.format((np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
+
+  #       # train network
+  #       net.train( train_data, onehot_labels_train.eval() )
+
+  #       # now train...
+  #       for i in range(1):
+  #           net.train(train_data,onehot_labels_train.eval())
+  #           print('error rate during training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
         
-        ##
-        ## Deconvolution Part - until here it runs OK
-        ##
+  #       ##
+  #       ## Deconvolution Part - until here it runs OK
+  #       ##
         
-        # instantiate deconv net
-        DeconvNet = net.createDeconvNet( train_data, train_labels )
+  #       # instantiate deconv net
+  #       DeconvNet = net.createDeconvNet( train_data, train_labels )
 
-        print( "\nDimension of input data")
-        print( train_data.shape)
+  #       print( "\nDimension of input data")
+  #       print( train_data.shape)
 
-        print( "\nNumber of Images")
-        print( train_data.shape[0])
+  #       print( "\nNumber of Images")
+  #       print( train_data.shape[0])
 
-        dec1, dec2  = DeconvNet.getDeconv()
+  #       dec1, dec2  = DeconvNet.getDeconv()
 
-        print( "\nDimension of Deconvoluted images - Layer 1")
-        print( dec1.shape )
-        print( dec1 )
+  #       print( "\nDimension of Deconvoluted images - Layer 1")
+  #       print( dec1.shape )
+  #       print( dec1 )
 
-        print( "\nDimension of Deconvoluted images - Layer 2")
-        print( dec2.shape )
-        print( dec2 )
+  #       print( "\nDimension of Deconvoluted images - Layer 2")
+  #       print( dec2.shape )
+  #       print( dec2 )
 
-        a1 = dec2.eval()
-        plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
-        plt.show()
+  #       a1 = dec2.eval()
+  #       plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
+  #       plt.show()
 
 
-        # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
-        # plt.show()
+  #       # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
+  #       # plt.show()
 
 
 if __name__ == "__main__":
