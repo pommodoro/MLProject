@@ -1,0 +1,2 @@
+model_checkpoint_path: "cnnMnist"
+all_model_checkpoint_paths: "cnnMnist"
