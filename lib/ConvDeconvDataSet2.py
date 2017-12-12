@@ -168,6 +168,10 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
     def getLoss(self):
         return self.loss
 
+    # acessor method to get filter weights of convolutional layers
+    def getWeights(self):
+        return (self.W_c1, self.W_c2, self.W_c3 )
+
     # method to initialize filter weights
     def initWeight(shape):
         weights = tf.truncated_normal(shape,stddev=0.1)
