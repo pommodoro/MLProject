@@ -206,12 +206,12 @@ def main(unused_argv):
         print( dec3.shape )
         print( dec3 )
 
-        a1 = dec3.eval()
-        plt.imshow(np.array(a1[1,:,:,0]) )
+        a1 = dec1.eval()
+        plt.imshow(np.array(a1[0,:,:,0]) )
         plt.show()
 
 
-        # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
+        # plt.imshow(np.array1(train_data[1,:,:,0]), cmap='gray')
         # plt.show()
 
 

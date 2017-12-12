@@ -204,19 +204,23 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         	# instantiate outer class in inner class
             self.cnn    = outer
             self.sess   = session
-            self.deconv1 = self.deconvLayer1( inputImage, inputLabel )
-            self.deconv2 = self.deconvLayer2( inputImage, inputLabel )
-            self.deconv3 = self.deconvLayer3( inputImage, inputLabel )
+
+            activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
+            self.deconv1 = self.deconvLayer1( inputImage, inputLabel, activations1 )
+            activations2 = self.calculateActivations(inputImage, inputLabel, 2)
+            self.deconv2 = self.deconvLayer2( inputImage, inputLabel, activations2 )
+            activations3 = self.calculateActivations( inputImage, inputLabel, 3 )            
+            self.deconv3 = self.deconvLayer3( inputImage, inputLabel, activations3 )
 
 
-        def deconvLayer1( self, inputImage, inputLabel ):
+        def deconvLayer1( self, inputImage, inputLabel, activations1 ):
 
         	#
         	## Deconvoluting 1st layer
         	##
             
             # get activations for layer 1
-            activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
+            #activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
 
             # convert from array to tensor
             act1_tf = tf.convert_to_tensor( activations1, np.float32 )
@@ -239,7 +243,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             return unConv1
 
 
-        def deconvLayer2( self, inputImage, inputLabel ):
+        def deconvLayer2( self, inputImage, inputLabel, activations2 ):
 
 
             ##
@@ -247,7 +251,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             ##
 
             # get activations for layer 2
-            activations2 = self.calculateActivations(inputImage, inputLabel, 2)
+            #activations2 = self.calculateActivations(inputImage, inputLabel, 2)
 
             # convert from array to tensor
             act1_tf = tf.convert_to_tensor( activations2, np.float32 )
@@ -286,7 +290,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             return unConv2
 
 
-        def deconvLayer3( self, inputImage, inputLabel ):
+        def deconvLayer3( self, inputImage, inputLabel, activations3 ):
 
 
             ##
@@ -294,7 +298,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             ##
 
             # get activations for layer 3
-            activations3 = self.calculateActivations(inputImage, inputLabel, 3)
+            #activations3 = self.calculateActivations(inputImage, inputLabel, 3)
 
             # convert from array to tensor
             act1_tf = tf.convert_to_tensor( activations3, np.float32 )
@@ -351,6 +355,110 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
                 padding = "SAME"  )
 
             return unConv3
+
+
+        #Returns de deconvoluted layer1 as numpy array, with isolated nodes,
+        #and save the images on the "img" folder
+        def displayFeatures1( self, inputImage, inputLabel):
+
+            #
+            ## Deconvoluting 1st layer
+            ##
+            
+            # get activations for layer 1
+            activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
+            
+            filters = activations1.shape[-1]
+            batch_size = activations1.shape[0]
+            
+            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            
+            for i in range(filters):
+            # Isolate filters
+                if i % 5 == 0:
+                    print("Deconvoluting Layer 1 activation number: {}".format(i))
+                isolated = activations1.copy()
+                isolated[:,:,:,:i]   = 0
+                isolated[:,:,:,i+1:] = 0
+
+                # devonvolute
+                unConv1 = self.deconvLayer1( inputImage, inputLabel, isolated )
+                
+                u = unConv1.eval()
+                imsave("img/Deconv1_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                
+                all_isolations[i,:,:,:,:] = u
+                
+            
+            return all_isolations
+
+
+        def displayFeatures2( self, inputImage, inputLabel):
+
+            ##
+            ## Deconvoluting 2nd layer
+            ##
+
+            # get activations for layer 2
+            activations2 = self.calculateActivations(inputImage, inputLabel, 2)
+            
+            filters = activations2.shape[-1]
+            batch_size = activations2.shape[0]
+            
+            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            
+            for i in range(filters):
+            # Isolate filters
+                if i % 5 == 0:
+                    print("Deconvoluting Layer 2 activation number: {}".format(i))
+                isolated = activations2.copy()
+                isolated[:,:,:,:i]   = 0
+                isolated[:,:,:,i+1:] = 0
+        
+                # deconvolute
+                unConv2 = self.deconvLayer2( inputImage, inputLabel, isolated )
+                
+                u = unConv2.eval()
+                imsave("img/Deconv2_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                
+                all_isolations[i,:,:,:,:] = u
+                
+            
+            return all_isolations
+
+
+        def displayFeatures3( self, inputImage, inputLabel ):
+
+            ##
+            ## Deconvoluting 2nd layer
+            ##
+
+            # get activations for layer 2
+            activations3 = self.calculateActivations(inputImage, inputLabel, 3)
+            
+            filters = activations2.shape[-1]
+            batch_size = activations2.shape[0]
+            
+            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            
+            for i in range(filters):
+            # Isolate filters
+                if i % 5 == 0:
+                    print("Deconvoluting Layer 2 activation number: {}".format(i))
+                isolated = activations2.copy()
+                isolated[:,:,:,:i]   = 0
+                isolated[:,:,:,i+1:] = 0
+        
+                # deconvolute
+                unConv3 = self.deconvLayer3( inputImage, inputLabel, isolated )
+                
+                u = unConv3.eval()
+                imsave("img/Deconv3_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                
+                all_isolations[i,:,:,:,:] = u
+                
+            
+            return all_isolations    
 
 
         # calculate activations for layer (1 or 2)
