@@ -175,7 +175,19 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
 
     # method to instantiate deconvolutional neural net
     def createDeconvNet(self, inputImage, inputLabel):
-        return CnnMnist.DeconvMnist( self, self.session, inputImage, inputLabel )
+        return CnnData2.DeconvData2( self, self.session, inputImage, inputLabel )
+
+    # saver method to save trained cnn in disk 
+    def netSaver(self, savePath):
+        saver = tf.train.Saver()
+        saver.save(self.session, savePath)
+        print("Model saved in file: %s" % savePath)
+
+    # loader method to restore weights of a pretrained cnn
+    def netLoader(self, loadPath):
+        loader = tf.train.Saver({"W_c1":self.W_c1, "W_c2":self.W_c2, "W_c3":self.W_c3})
+        restoredModel= loader.restore(self.session, loadPath)
+        print("Model restored from %s" % loadPath)
 
 
     ###
@@ -247,7 +259,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             unRelu1 = tf.nn.relu( unPool1 )
 
             # 1st deconvolute (filter)
-            outputShape1 = self.cnn.n_in/self.cnn.filterSizePool1
+            outputShape1 = int(self.cnn.n_in/self.cnn.filterSizePool1)
             unConv1 = tf.nn.conv2d_transpose( 
                 #activations1,
                 unRelu1,
@@ -285,7 +297,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             activations3 = self.calculateActivations(inputImage, inputLabel, 3)
 
             # convert from array to tensor
-            act1_tf = tf.convert_to_tensor( activations2, np.float32 )
+            act1_tf = tf.convert_to_tensor( activations3, np.float32 )
 
             # 1st unpool
             unPool1 = self.unpool( act1_tf )
@@ -294,12 +306,13 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             unRelu1 = tf.nn.relu( unPool1 )
 
             # 1st deconvolute (filter)
-            outputShape1 = self.cnn.n_in/self.cnn.filterSizePool2/self.cnn.filterSizePool1
+            outputShape1 = int((self.cnn.n_in/self.cnn.filterSizePool2)/self.cnn.filterSizePool1)
             unConv1 = tf.nn.conv2d_transpose( 
                 #activations1,
                 unRelu1,
                 self.cnn.W_c3,
-                output_shape = [ inputImage.shape[0], outputShape1, outputShape1, self.cnn.nFiltersConv1],
+                #output_shape = [ inputImage.shape[0], outputShape1, outputShape1, self.cnn.nFiltersConv1],
+                output_shape = [ inputImage.shape[0], outputShape1, outputShape1, self.cnn.nFiltersConv2],
                 strides = [1, 1, 1, 1],
                 padding = "SAME"  )
 
@@ -311,18 +324,19 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             unRelu2 = tf.nn.relu( unPool2 )
 
             # 2nd deconvolute (filter)
-            outputShape2 = self.cnn.n_in/self.cnn.filterSizePool1
+            outputShape2 = int(self.cnn.n_in/self.cnn.filterSizePool1)
             unConv2 = tf.nn.conv2d_transpose( 
                 #activations1,
                 unRelu2,
                 self.cnn.W_c2,
-                output_shape = [ inputImage.shape[0], outputShape2, outputShape2, self.cnn.nChannels],
+                #output_shape = [ inputImage.shape[0], outputShape2, outputShape2, self.cnn.nChannels],
+                output_shape = [ inputImage.shape[0], outputShape2, outputShape2, self.cnn.nFiltersConv1],
                 strides = [1, 1, 1, 1],
                 padding = "SAME"  )
 
 
             # 3rd unpool
-            unPool3 = self.unpool( unConv1 )
+            unPool3 = self.unpool( unConv2 )
 
             # 3rd relu
             unRelu3 = tf.nn.relu( unPool3 )
@@ -343,11 +357,11 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         def calculateActivations( self, inputImage, inputLabel, layer ):
 
             if( layer == 1 ):
-                return self.cnn.pool1.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.cnn.inDim*self.cnn.inDim])})
+                return self.cnn.pool1.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,int(self.cnn.n_in*self.cnn.n_in*self.cnn.nChannels)])})
             elif( layer == 2 ):
-                return self.cnn.pool2.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.cnn.inDim*self.cnn.inDim])})
+                return self.cnn.pool2.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,int(self.cnn.n_in*self.cnn.n_in*self.cnn.nChannels)])})
             else:
-                return self.cnn.pool3.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.cnn.inDim*self.cnn.inDim])})
+                return self.cnn.pool3.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,int(self.cnn.n_in*self.cnn.n_in*self.cnn.nChannels)])})
 
 
         def getDeconv( self ):
