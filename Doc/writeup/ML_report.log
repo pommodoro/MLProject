@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  11 DEC 2017 12:49
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  12 DEC 2017 18:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -305,11 +305,26 @@ Underfull \hbox (badness 10000) in paragraph at lines 44--45
  []
 
 [2]
-Overfull \hbox (3.90227pt too wide) in paragraph at lines 48--49
+Underfull \hbox (badness 10000) in paragraph at lines 52--53
+
+ []
+
+
+Overfull \hbox (3.90227pt too wide) in paragraph at lines 56--57
 []\OT1/cmr/m/n/12 [FIGURE ONE WILL IN-CLUDE DE-TAILS ABOUT VAL-I-DA-TION AND
  []
 
-[3] (./ML_report.aux) ) 
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 70--71
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 72--73
+
+ []
+
+[4] (./ML_report.aux) ) 
 Here is how much of TeX's memory you used:
  3772 strings out of 493014
  52016 string characters out of 6133351
@@ -317,7 +332,7 @@ Here is how much of TeX's memory you used:
  7232 multiletter control sequences out of 15000+600000
  14048 words of font info for 53 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,6n,39p,743b,201s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,6n,39p,845b,201s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/a
 msfonts/cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/am
 sfonts/cm/cmbx12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/ams
@@ -328,10 +343,10 @@ ts/cm/cmr12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts
 m/cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/c
 msy10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cm
 ti12.pfb>
-Output written on ML_report.pdf (3 pages, 109793 bytes).
+Output written on ML_report.pdf (4 pages, 114808 bytes).
 PDF statistics:
- 50 PDF objects out of 1000 (max. 8388607)
- 35 compressed objects within 1 object stream
+ 53 PDF objects out of 1000 (max. 8388607)
+ 37 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
