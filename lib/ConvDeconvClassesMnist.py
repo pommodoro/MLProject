@@ -114,6 +114,10 @@ class CnnMnist:
     def getConvs(self):
         return ( self.conv1, self.conv2 )
 
+    # acessor method to get filter weights of convolutional layers
+    def getWeights(self):
+        return ( self.W_c1, self.W_c2 )
+
     # acessor method for loss
     def getLoss(self):
         return self.loss
