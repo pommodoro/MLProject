@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import os
 import csv
 from PIL import Image
+import random
 
 
 # Import script with auxiliar functions
@@ -133,69 +134,85 @@ def main(unused_argv):
     with tf.Session() as sess:
 
 
-        train_data   = train_data#[0:200]
-        train_labels = train_labels#[0:200]
-        train_labels = train_labels.astype( np.int )
-        batch_size = 50
-        max_iter   = 100
+        # train_data   = train_data#[0:200]
+        # train_labels = train_labels#[0:200]
+        # train_labels = train_labels.astype( np.int )
+        # batch_size   = 32
+        # max_iter     = 50
 
 
-        # instatiate Network
-        net = nets.CnnData2( sess ) 
+        # # instatiate Network
+        # net = nets.CnnData2( sess ) 
 
-        # usual tf initialization
-        sess.run(tf.global_variables_initializer())
+        # # usual tf initialization
+        # sess.run(tf.global_variables_initializer())
 
-        # make labels one-hot encoded
-        onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  3 ).eval()
+        # # make labels one-hot encoded
+        # onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  3 ).eval()
 
-        # print error rate before training
-        print('error rate BEFORE training is {}'.format((np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
+        # # print error rate before training
+        # #print('error rate BEFORE training is {}'.format((np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
 
-        # train network
-        net.train( train_data, onehot_labels_train )
+        # # train network
+        # #net.train( train_data, onehot_labels_train )
 
-        # now train...
-        for i in range( max_iter ):
+        # # now train...
+        # for i in range( max_iter ):
 
-          batch = random.sample( range(train_data.shape[0]), batch_size )
-          x_batch = train_data[batch,]
-          y_batch = onehot_labels_train[batch,]
-          net.train( x_batch,  y_batch )
-          if i % 10 == 0:
-            print('error rate during training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
+        #   batch = random.sample( range(train_data.shape[0]), batch_size )
+        #   x_batch = train_data[batch]
+        #   y_batch = onehot_labels_train[batch]
+        #   net.train( x_batch,  y_batch )
+        #   if i % 10 == 0:
+        #     print('error rate at iteration {} is {}'.format(i,( np.sum(net.compute(train_data[0:100])!=train_labels[0:100]) / train_labels[0:100].size)))
+
+        
+
+        # # save the trained network 
+        # net.netSaver("./tmp/cnnData2")
           
         
-  #       ##
-  #       ## Deconvolution Part - until here it runs OK
-  #       ##
+        ##
+        ## Deconvolution Part - until here it runs OK
+        ##
         
-  #       # instantiate deconv net
-  #       DeconvNet = net.createDeconvNet( train_data, train_labels )
+        # load trained model
+        net = nets.CnnData2( sess ) 
+        net.netLoader( "./tmp/cnnData2" )
 
-  #       print( "\nDimension of input data")
-  #       print( train_data.shape)
-
-  #       print( "\nNumber of Images")
-  #       print( train_data.shape[0])
-
-  #       dec1, dec2  = DeconvNet.getDeconv()
-
-  #       print( "\nDimension of Deconvoluted images - Layer 1")
-  #       print( dec1.shape )
-  #       print( dec1 )
-
-  #       print( "\nDimension of Deconvoluted images - Layer 2")
-  #       print( dec2.shape )
-  #       print( dec2 )
-
-  #       a1 = dec2.eval()
-  #       plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
-  #       plt.show()
+        print( "loaded model" )
 
 
-  #       # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
-  #       # plt.show()
+        # instantiate deconv net
+        DeconvNet = net.createDeconvNet( train_data[0:10], train_labels[0:10] )
+
+        print( "\nDimension of input data")
+        print( train_data.shape)
+
+        print( "\nNumber of Images")
+        print( train_data.shape[0])
+
+        dec1, dec2, dec3  = DeconvNet.getDeconv()
+
+        print( "\nDimension of Deconvoluted images - Layer 1")
+        print( dec1.shape )
+        print( dec1 )
+
+        print( "\nDimension of Deconvoluted images - Layer 2")
+        print( dec2.shape )
+        print( dec2 )
+
+        print( "\nDimension of Deconvoluted images - Layer 3")
+        print( dec3.shape )
+        print( dec3 )
+
+        a1 = dec3.eval()
+        plt.imshow(np.array(a1[1,:,:,0]) )
+        plt.show()
+
+
+        # plt.imshow(np.array(train_data[1,:,:,0]), cmap='gray')
+        # plt.show()
 
 
 if __name__ == "__main__":
