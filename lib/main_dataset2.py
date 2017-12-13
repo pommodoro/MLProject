@@ -36,9 +36,9 @@ def main(unused_argv):
   # eval_data    = mnist.test.images[0:200] # Returns np.array - reading only 200 images
   # eval_labels  = np.asarray(mnist.test.labels[0:200], dtype=np.int32) # - reading only 200 images
 
-  ############################################
-  ### RESIZE IMAGES
-  ############################################
+  ##########################################
+  # RESIZE IMAGES
+  ##########################################
 
   # # path where files are "../data/dataset2/train"
   # train_path = "../data/dataset2/train/"
@@ -150,48 +150,50 @@ def main(unused_argv):
 
          train_labels = train_labels.astype( np.int )
          eval_labels = eval_labels.astype( np.int )
-         batch_size   = 64
-         max_iter     = 1500
+         batch_size   = 42
+         max_iter     = 1000
 
 
          # instatiate Network
-         net = nets.CnnData2( sess ) 
-
-         # usual tf initialization
-         sess.run(tf.global_variables_initializer())
-
-         # make labels one-hot encoded
-         onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  3 ).eval()
-
-         # print error rate before training
-         #print('error rate BEFORE training is {}'.format((np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
-
-         # train network
-         #net.train( train_data, onehot_labels_train )
-
-         # now train...
-         start = time.time()
-         
-         for i in range( max_iter ):
-
-           batch = random.sample( range(train_data.shape[0]), batch_size )
-           x_batch = train_data[batch]
-           y_batch = onehot_labels_train[batch]
-           net.train( x_batch,  y_batch )
-           if i % 100 == 0:
-             print('Aproximate error rate at iteration {} is {} %'.format(i, ( np.sum(net.compute(train_data[0:100,])!=train_labels[0:100]) / train_labels[0:100].size *100)))
-
-         elapsed = (time.time() - start)
-         
-         print("Total training time: {} seconds".format(round(elapsed,2)))
-            
-         print('Aproximate Final training error is {} %'.format((np.sum(net.compute(train_data[0:500])!=train_labels[0:500]) / train_labels[0:500].size *100)))
-        
-         print('Test error is {} %'.format(( np.sum(net.compute(eval_data)!=eval_labels) / eval_labels.size *100)))
-
-
-        # # save the trained network 
-         net.netSaver("./tmp/cnnData2")
+#         net = nets.CnnData2( sess ) 
+#
+#         # usual tf initialization
+#         sess.run(tf.global_variables_initializer())
+#
+#         # make labels one-hot encoded
+#         onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  3 ).eval()
+#
+#         # print error rate before training
+#         #print('error rate BEFORE training is {}'.format((np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
+#
+#         # train network
+#         #net.train( train_data, onehot_labels_train )
+#
+#         # now train...
+#         start = time.time()
+#         
+#         for i in range( max_iter ):
+#
+#           batch = random.sample( range(train_data.shape[0]), batch_size )
+#           x_batch = train_data[batch]
+#           y_batch = onehot_labels_train[batch]
+#           net.train( x_batch,  y_batch )
+#           if i % 100 == 0:
+#             print('Aproximate error rate at iteration {} is {} %'.format(i, ( np.sum(net.compute(train_data[0:100,])!=train_labels[0:100]) / train_labels[0:100].size *100)))
+#
+#         elapsed = (time.time() - start)
+#         
+#         print("Total training time: {} seconds".format(round(elapsed,2)))
+#            
+#         print('Aproximate Final training error is {} %'.format((np.sum(net.compute(train_data[0:500])!=train_labels[0:500]) / train_labels[0:500].size *100)))
+#        
+#         print('Test error is {} %'.format(( np.sum(net.compute(eval_data)!=eval_labels) / eval_labels.size *100)))
+#
+#         print(type(eval_labels))
+#         print(type(train_labels))
+#
+#        # # save the trained network 
+#         net.netSaver("./tmp/cnnData2")
           
         
         ##
@@ -199,10 +201,10 @@ def main(unused_argv):
         ##
         
         # load trained model
-#        net = nets.CnnData2( sess ) 
-#        net.netLoader( "./tmp/cnnData2" )
-#
-#        print( "loaded model" )
+         net = nets.CnnData2( sess ) 
+         net.netLoader( "./tmp/cnnData2" )
+
+         print( "loaded model" )
 
 
          # instantiate deconv net
@@ -227,26 +229,31 @@ def main(unused_argv):
          print( "\nDimension of Deconvoluted images - Layer 3")
          print( dec3.shape )
          print( dec3 )
-
-        #a1 = dec1.eval()
-        #plt.imshow(np.array(a1[0,:,:,0]) )
-        #plt.show()
-        
-        #Activations part----------------------------
-
+#
+#        #a1 = dec1.eval()
+#        #plt.imshow(np.array(a1[0,:,:,0]) )
+#        #plt.show()
+#        
+#        #Activations part----------------------------
+#
+         np.save("tmp/eval_data_dmf.npy", eval_data)
+         
          print("\n")
-         a1 = DeconvNet.displayFeatures1(eval_data, eval_labels)
+         a1, b1 = DeconvNet.displayFeatures1(eval_data, eval_labels)
          np.save("tmp/ActivationsDMF_Layer1.npy", a1)
+         np.save("tmp/BestImagesDMF_Layer1.npy", b1)
          print(a1.shape)
         
          print("\n")
-         a2 = DeconvNet.displayFeatures2(eval_data, eval_labels)
+         a2, b2 = DeconvNet.displayFeatures2(eval_data, eval_labels)
          np.save("tmp/ActivationsDMF_Layer2.npy", a2)
+         np.save("tmp/BestImagesDMF_Layer2.npy", b2)
          print(a2.shape)  
         
          print("\n")
-         a3 = DeconvNet.displayFeatures2(eval_data, eval_labels)
+         a3, b3 = DeconvNet.displayFeatures2(eval_data, eval_labels)
          np.save("tmp/ActivationsDMF_Layer3.npy", a3)
+         np.save("tmp/BestImagesDMF_Layer3.npy", b3)
          print(a3.shape)     
         
          #Weights part--------------------------------
