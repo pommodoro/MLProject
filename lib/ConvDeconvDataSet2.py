@@ -19,7 +19,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         filterSizePool1 = 2, strideFilter1 = 2,
         filterSizePool2 = 2, strideFilter2 = 2,
         filterSizePool3 = 2, strideFilter3 = 2,
-        nChannels = 3, mode = True ):
+        nChannels = 3, fcUnits = 1024, mode = True ):
 
     	# instantiate session
         self.session   = session
@@ -129,7 +129,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         #
         nReshape = (self.n_in/filterSizePool1/filterSizePool2/filterSizePool3) * (self.n_in/filterSizePool1/filterSizePool2/filterSizePool3) * nFiltersConv3
         pool3_flat = tf.reshape(self.pool3, [-1, int(nReshape)])
-        dense = tf.layers.dense(inputs=pool3_flat, units=1024, activation=tf.nn.relu)
+        dense = tf.layers.dense(inputs=pool3_flat, units=fcUnits, activation=tf.nn.relu)
         dropout = tf.layers.dropout(
             inputs=dense, rate=0.4, training = self.mode )
 
