@@ -144,6 +144,45 @@ class CnnMnist:
     def createDeconvNet(self, inputImage, inputLabel):
         return CnnMnist.DeconvMnist( self, self.session, self.n_in, self.n_out, inputImage, inputLabel )
 
+    def activate(self, layer, image, sess):
+#    """
+#    Within a tensorflow session, calls plotfilter
+#    to display the activations of trained filters in a specific layer
+#    after passsing an image.
+#
+#    Parameters
+#    ----
+#    layer: int
+#    image: ndarray of length 784
+#    """
+        
+        
+        conv_layer = sess.run(layer, feed_dict={self.x:np.reshape(image, [ 10, 784], order='F')})
+        
+        self.plotfilter(conv_layer)
+        
+        return conv_layer
+    
+    def plotfilter(self, conv_layer):
+#    """
+    
+
+#    Parameters
+#    ----
+#    conv_layer = [?, 28, 28, 32] tensor
+#    """
+#    
+        filters=conv_layer.shape[3]
+        plt.figure(1,figsize=(25,25))
+        n_columns = 6
+        n_rows = math.ceil(filters / n_columns) + 1
+        for i in range(filters):
+            plt.subplot(n_rows, n_columns, i+1)
+            plt.title('Filter ' + str(i))
+            plt.imshow(conv_layer[0,:,:,i], interpolation="nearest", cmap="gray")
+
+
+
 #''' DON'T COMMENT ME PLEASE!!!
     ###
     ### Nested Class: Deconvolutional Neural Network (CNN) for MNIST
