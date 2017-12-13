@@ -95,7 +95,7 @@ def main(unused_argv):
   
         # load trained model
         net = nets.CnnMnist( sess ) 
-        net.netLoader( "./tmp/cnnMnist" )
+        net.netLoader( "./tmp/MNIST/cnnMnist" )
 
         print( "loaded model" )
 
@@ -123,14 +123,20 @@ def main(unused_argv):
         
         #Activations part----------------------------
         
+        np.save("tmp/MNIST/eval_data_mnist.npy", eval_data[:100,])
+        
         print("\n")
-        a1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
-        np.save("tmp/ActivationsMnist_Layer1.npy", a1)
+        a1, b1, c1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
+        np.save("tmp/MNIST/ActivationsMnist_Layer1.npy", a1)
+        np.save("tmp/MNIST/BestImagesMnist_Layer1.npy", b1)
+        np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer1.npy", c1)
         print(a1.shape)
         
         print("\n")
-        a2 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100])
-        np.save("tmp/ActivationsMnist_Layer2.npy", a2)
+        a2, b2, c2 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100])
+        np.save("tmp/MNIST/ActivationsMnist_Layer2.npy", a2)
+        np.save("tmp/MNIST/BestImagesMnist_Layer2.npy", b2)
+        np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer2.npy", c2)
         print(a2.shape)      
         
         #Weights part--------------------------------
@@ -138,10 +144,10 @@ def main(unused_argv):
         w1_t, w2_t = net.getWeights()
         
         w1 = w1_t.eval()
-        np.save("tmp/WeightMnist_1.npy", w1)
+        np.save("tmp/MNIST/WeightMnist_1.npy", w1)
         
         w2 = w2_t.eval()
-        np.save("tmp/WeightMnist_2.npy", w2)
+        np.save("tmp/MNIST/WeightMnist_2.npy", w2)
 
 
         
