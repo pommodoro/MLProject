@@ -5,7 +5,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import random
 import math
-
+from scipy.misc import imsave
 
 ###
 ### Convolutional Neural Network (CNN) for MNIST
@@ -375,7 +375,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             filters = activations1.shape[-1]
             batch_size = activations1.shape[0]
             
-            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            all_isolations = np.zeros([filters, batch_size, 128, 128, 3])
             
             for i in range(filters):
             # Isolate filters
@@ -389,7 +389,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
                 unConv1 = self.deconvLayer1( inputImage, inputLabel, isolated )
                 
                 u = unConv1.eval()
-                imsave("img/Deconv1_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                imsave("img/Deconv1_Node_{}_of_Image1.jpg".format(i), u[1,:,:,0])
                 
                 all_isolations[i,:,:,:,:] = u
                 
@@ -409,7 +409,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             filters = activations2.shape[-1]
             batch_size = activations2.shape[0]
             
-            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            all_isolations = np.zeros([filters, batch_size, 128, 128, 3])
             
             for i in range(filters):
             # Isolate filters
@@ -423,7 +423,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
                 unConv2 = self.deconvLayer2( inputImage, inputLabel, isolated )
                 
                 u = unConv2.eval()
-                imsave("img/Deconv2_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                imsave("img/Deconv2_Node_{}_of_Image1.jpg".format(i), u[1,:,:,0])
                 
                 all_isolations[i,:,:,:,:] = u
                 
@@ -440,16 +440,16 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             # get activations for layer 2
             activations3 = self.calculateActivations(inputImage, inputLabel, 3)
             
-            filters = activations2.shape[-1]
-            batch_size = activations2.shape[0]
+            filters = activations3.shape[-1]
+            batch_size = activations3.shape[0]
             
-            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            all_isolations = np.zeros([filters, batch_size, 128, 128, 3])
             
             for i in range(filters):
             # Isolate filters
                 if i % 5 == 0:
-                    print("Deconvoluting Layer 2 activation number: {}".format(i))
-                isolated = activations2.copy()
+                    print("Deconvoluting Layer 3 activation number: {}".format(i))
+                isolated = activations3.copy()
                 isolated[:,:,:,:i]   = 0
                 isolated[:,:,:,i+1:] = 0
         
@@ -457,7 +457,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
                 unConv3 = self.deconvLayer3( inputImage, inputLabel, isolated )
                 
                 u = unConv3.eval()
-                imsave("img/Deconv3_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                imsave("img/Deconv3_Node_{}_of_Image1.jpg".format(i), u[1,:,:,0])
                 
                 all_isolations[i,:,:,:,:] = u
                 
