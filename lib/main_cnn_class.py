@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import time
+import aux_functions as auxy
 
 # Import script with auxiliar functions
 import ConvDeconvClassesMnist as nets
@@ -121,16 +122,24 @@ def main(unused_argv):
 
         conv1, conv2 = net.getConvs()
         
+        #Images within Layers (Aman)
+        
+        images_within_layer1 = net.activate( conv1, eval_data[:10,], sess)
+        np.save("tmp/MNIST/FilterProjectionMnist_Layer1.npy", images_within_layer1)
+        
+        images_within_layer2 = net.activate( conv2, eval_data[:10,], sess)
+        np.save("tmp/MNIST/FilterProjectionMnist_Layer1.npy", images_within_layer2)
+        
         #Activations part----------------------------
         
         np.save("tmp/MNIST/eval_data_mnist.npy", eval_data[:100,])
         
         print("\n")
-        a1, b1, c1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
-        np.save("tmp/MNIST/ActivationsMnist_Layer1.npy", a1)
-        np.save("tmp/MNIST/BestImagesMnist_Layer1.npy", b1)
-        np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer1.npy", c1)
-        print(a1.shape)
+        activations1, best1, filter_index1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
+        np.save("tmp/MNIST/ActivationsMnist_Layer1.npy", activations1)
+        np.save("tmp/MNIST/BestImagesMnist_Layer1.npy", best1)
+        np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer1.npy", filter_index1)
+        print(activations1.shape)
         
         print("\n")
         a2, b2, c2 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100])
