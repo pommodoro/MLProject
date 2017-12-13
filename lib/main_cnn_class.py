@@ -13,6 +13,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import time
 
 # Import script with auxiliar functions
 import ConvDeconvClassesMnist as nets
@@ -63,6 +64,8 @@ def main(unused_argv):
         #net.train( train_data, onehot_labels_train )
  
         # now train...
+        start = time.time()
+        
         for i in range(max_iter):            
             batch = random.sample(range( train_data.shape[0] ), batch_size)
         
@@ -74,7 +77,11 @@ def main(unused_argv):
             if i % 100 == 0:
                 print('Aproximate error rate during iteration {} is {} %'.format(i, round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
             
-        print('Final training error is {} %'.format(round(np.sum(net.compute(train_data)!=train_labels) / train_labels.size *100, 2)))
+        elapsed = (time.time() - start)
+        
+        print("Total training time: {} seconds".format(round(elapsed,2)))
+        
+        print('Final aproximate training error is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
         
         print('Final test error is {} %'.format(round(np.sum(net.compute(eval_data)!=eval_labels) / eval_labels.size *100, 2)))
         
@@ -107,16 +114,29 @@ def main(unused_argv):
 
         conv1, conv2 = net.getConvs()
         
+        #Activations part----------------------------
+        
         print("\n")
-        a1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
+        a1 = DeconvNet.displayFeatures1(eval_data, eval_labels)
+        np.save("tmp/ActivationsMnist_Layer1.npy", a1)
         print(a1.shape)
         
         print("\n")
-        a2 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100])
+        a2 = DeconvNet.displayFeatures2(eval_data, eval_labels)
+        np.save("tmp/ActivationsMnist_Layer2.npy", a2)
         print(a2.shape)      
         
-        np.save("tmp/ActivationsArray_Layer1_Run2.npy", a1)
-        np.save("tmp/ActivationsArray_Layer2_Run2.npy", a2)
+        #Weights part--------------------------------
+        
+        w1_t, w2_t = net.getWeights()
+        
+        w1 = w1_t.eval()
+        np.save("tmp/WeightMnist_1.npy", w1)
+        
+        w2 = w2_t.eval()
+        np.save("tmp/WeightMnist_2.npy", w2)
+
+
         
         #a1 = dec1.eval()
         #plt.imshow(np.array(a1[1,:,:,0]), cmap='gray')
