@@ -36,9 +36,10 @@ def main(unused_argv):
   # eval_data    = mnist.test.images[0:200] # Returns np.array - reading only 200 images
   # eval_labels  = np.asarray(mnist.test.labels[0:200], dtype=np.int32) # - reading only 200 images
 
-  # ###########################################
-  # ## RESIZE IMAGES
-  # ###########################################
+  ##########################################
+  # RESIZE IMAGES
+  ##########################################
+
 
   # # path where files are "../data/dataset2/train"
   # train_path = "../data/dataset2/train/"
@@ -251,10 +252,10 @@ def main(unused_argv):
         ##
         
         # load trained model
-#        net = nets.CnnData2( sess ) 
-#        net.netLoader( "./tmp/cnnData2" )
-#
-#        print( "loaded model" )
+         net = nets.CnnData2( sess ) 
+         net.netLoader( "./tmp/cnnData2" )
+
+         print( "loaded model" )
 
 
          # instantiate deconv net
@@ -279,26 +280,31 @@ def main(unused_argv):
          print( "\nDimension of Deconvoluted images - Layer 3")
          print( dec3.shape )
          print( dec3 )
-
-        #a1 = dec1.eval()
-        #plt.imshow(np.array(a1[0,:,:,0]) )
-        #plt.show()
-        
-        #Activations part----------------------------
-
+#
+#        #a1 = dec1.eval()
+#        #plt.imshow(np.array(a1[0,:,:,0]) )
+#        #plt.show()
+#        
+#        #Activations part----------------------------
+#
+         np.save("tmp/eval_data_dmf.npy", eval_data)
+         
          print("\n")
-         a1 = DeconvNet.displayFeatures1(eval_data, eval_labels)
+         a1, b1 = DeconvNet.displayFeatures1(eval_data, eval_labels)
          np.save("tmp/ActivationsDMF_Layer1.npy", a1)
+         np.save("tmp/BestImagesDMF_Layer1.npy", b1)
          print(a1.shape)
         
          print("\n")
-         a2 = DeconvNet.displayFeatures2(eval_data, eval_labels)
+         a2, b2 = DeconvNet.displayFeatures2(eval_data, eval_labels)
          np.save("tmp/ActivationsDMF_Layer2.npy", a2)
+         np.save("tmp/BestImagesDMF_Layer2.npy", b2)
          print(a2.shape)  
         
          print("\n")
-         a3 = DeconvNet.displayFeatures2(eval_data, eval_labels)
+         a3, b3 = DeconvNet.displayFeatures2(eval_data, eval_labels)
          np.save("tmp/ActivationsDMF_Layer3.npy", a3)
+         np.save("tmp/BestImagesDMF_Layer3.npy", b3)
          print(a3.shape)     
         
          #Weights part--------------------------------
