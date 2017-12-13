@@ -17,7 +17,7 @@ from scipy.misc import imsave
 ###
 class CnnMnist:
     
-    def __init__( self, session, n_in, n_out, mode ):
+    def __init__( self, session, n_in = 28*28, n_out = 10, mode = True ):
 
         # instantiate session
         self.session  = session
@@ -274,7 +274,7 @@ class CnnMnist:
 
         #Returns de deconvoluted layer1 as numpy array, with isolated nodes,
         #and save the images on the "img" folder
-        def displayFeatures1( self, inputImage, inputLabel):
+        def displayFeatures1( self, inputImage, inputLabel, n_best = 8):
 
             #
             ## Deconvoluting 1st layer
@@ -284,9 +284,9 @@ class CnnMnist:
             activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
             
             filters = activations1.shape[-1]
-            batch_size = activations1.shape[0]
+            aux = activations1.shape[0] - n_best
             
-            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            all_isolations = np.zeros([filters, n_best, 28, 28, 1])
             
             for i in range(filters):
             # Isolate filters
@@ -315,6 +315,14 @@ class CnnMnist:
                     padding = "SAME"  )
                 
                 u = unConv1.eval()
+                
+                Norm1 = np.linalg.norm(u, axis = (2, 3))
+                Norm2 = np.linalg.norm(Norm1, axis = 1)
+                
+                best = np.where(aux <= np.argsort(Norm2))[0]
+                
+                u = u[best,]
+                
                 imsave("img/Deconv1_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
                 
                 all_isolations[i,:,:,:,:] = u
@@ -323,7 +331,7 @@ class CnnMnist:
             return all_isolations
 
 
-        def displayFeatures2( self, inputImage, inputLabel):
+        def displayFeatures2( self, inputImage, inputLabel, n_best = 8):
 
             ##
             ## Deconvoluting 2nd layer
@@ -333,9 +341,9 @@ class CnnMnist:
             activations2 = self.calculateActivations(inputImage, inputLabel, 2)
             
             filters = activations2.shape[-1]
-            batch_size = activations2.shape[0]
+            aux = activations2.shape[0] - n_best
             
-            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            all_isolations = np.zeros([filters, n_best, 28, 28, 1])
             
             for i in range(filters):
             # Isolate filters
@@ -380,6 +388,14 @@ class CnnMnist:
                     padding = "SAME"  )
                 
                 u = unConv2.eval()
+                
+                Norm1 = np.linalg.norm(u, axis = (2, 3))
+                Norm2 = np.linalg.norm(Norm1, axis = 1)
+                
+                best = np.where(aux <= np.argsort(Norm2))[0]
+                
+                u = u[best,]
+                
                 imsave("img/Deconv2_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
                 
                 all_isolations[i,:,:,:,:] = u

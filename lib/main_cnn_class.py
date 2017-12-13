@@ -43,58 +43,65 @@ def main(unused_argv):
     with tf.Session() as sess:
 
 
-        # instatiate Network
-        net = nets.CnnMnist(sess, 28*28, 10, True ) # True stands for training
-
-        #DeconvNet = net.createDeconvNet()
-
-        #act11  = DeconvNet.calculateActivations(train_data, train_labels, 1)
-        #plt.imshow(np.array(act11[5,:,:,2]), cmap='gray')
-        #plt.show()
-
-        # usual tf initialization
-        sess.run(tf.global_variables_initializer())
-
-        # make labels one-hot encoded
-        onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  10 ).eval()
-
-        # print error rate before training        
-        print('Aproximate error rate BEFORE training is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
-        # train network
-        #net.train( train_data, onehot_labels_train )
- 
-        # now train...
-        start = time.time()
-        
-        for i in range(max_iter):            
-            batch = random.sample(range( train_data.shape[0] ), batch_size)
-        
-            x_batch = train_data[batch,]
-            y_batch = onehot_labels_train[batch,]
-            
-            net.train(x_batch, y_batch)
-            
-            if i % 100 == 0:
-                print('Aproximate error rate during iteration {} is {} %'.format(i, round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
-            
-        elapsed = (time.time() - start)
-        
-        print("Total training time: {} seconds".format(round(elapsed,2)))
-        
-        print('Final aproximate training error is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
-        
-        print('Final test error is {} %'.format(round(np.sum(net.compute(eval_data)!=eval_labels) / eval_labels.size *100, 2)))
-        
-        # save the trained network 
-        net.netSaver("./tmp/cnnMnist")
+#        # instatiate Network
+#        net = nets.CnnMnist(sess, 28*28, 10, True ) # True stands for training
+#
+#        #DeconvNet = net.createDeconvNet()
+#
+#        #act11  = DeconvNet.calculateActivations(train_data, train_labels, 1)
+#        #plt.imshow(np.array(act11[5,:,:,2]), cmap='gray')
+#        #plt.show()
+#
+#        # usual tf initialization
+#        sess.run(tf.global_variables_initializer())
+#
+#        # make labels one-hot encoded
+#        onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  10 ).eval()
+#
+#        # print error rate before training        
+#        print('Aproximate error rate BEFORE training is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
+#        # train network
+#        #net.train( train_data, onehot_labels_train )
+# 
+#        # now train...
+#        start = time.time()
+#        
+#        for i in range(max_iter):            
+#            batch = random.sample(range( train_data.shape[0] ), batch_size)
+#        
+#            x_batch = train_data[batch,]
+#            y_batch = onehot_labels_train[batch,]
+#            
+#            net.train(x_batch, y_batch)
+#            
+#            if i % 100 == 0:
+#                print('Aproximate error rate during iteration {} is {} %'.format(i, round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
+#            
+#        elapsed = (time.time() - start)
+#        
+#        print("Total training time: {} seconds".format(round(elapsed,2)))
+#        
+#        print('Final aproximate training error is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
+#        
+#        print('Final test error is {} %'.format(round(np.sum(net.compute(eval_data)!=eval_labels) / eval_labels.size *100, 2)))
+#        
+#        # save the trained network 
+#        net.netSaver("./tmp/cnnMnist")
 
         #''' DON'T COMMENT ME PLEASE!!!
         ##
         ## Deconvolution Part - until here it runs OK
         ##
-        
+  
+        # load trained model
+        net = nets.CnnMnist( sess ) 
+        net.netLoader( "./tmp/cnnMnist" )
+
+        print( "loaded model" )
+
+      
         # instantiate deconv net
-        DeconvNet = net.createDeconvNet( train_data, train_labels )
+        DeconvNet = net.createDeconvNet( train_data[:100,], train_labels[:100] )
 
         print( "\nDimension of input data")
         print( train_data.shape)
@@ -117,12 +124,12 @@ def main(unused_argv):
         #Activations part----------------------------
         
         print("\n")
-        a1 = DeconvNet.displayFeatures1(eval_data, eval_labels)
+        a1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
         np.save("tmp/ActivationsMnist_Layer1.npy", a1)
         print(a1.shape)
         
         print("\n")
-        a2 = DeconvNet.displayFeatures2(eval_data, eval_labels)
+        a2 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100])
         np.save("tmp/ActivationsMnist_Layer2.npy", a2)
         print(a2.shape)      
         
