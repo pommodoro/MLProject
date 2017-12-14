@@ -264,67 +264,81 @@ def main(unused_argv):
          # instantiate deconv net
          DeconvNet = net.createDeconvNet( eval_data[:100,], eval_labels[:100] )
 
-         print( "\nDimension of input data")
-         print( train_data.shape)
-
-         print( "\nNumber of Images")
-         print( train_data.shape[0])
-
-         dec1, dec2, dec3  = DeconvNet.getDeconv()
-
-         print( "\nDimension of Deconvoluted images - Layer 1")
-         print( dec1.shape )
-         print( dec1 )
-
-         print( "\nDimension of Deconvoluted images - Layer 2")
-         print( dec2.shape )
-         print( dec2 )
-
-         print( "\nDimension of Deconvoluted images - Layer 3")
-         print( dec3.shape )
-         print( dec3 )
+#         print( "\nDimension of input data")
+#         print( train_data.shape)
 #
+#         print( "\nNumber of Images")
+#         print( train_data.shape[0])
+#
+#         dec1, dec2, dec3  = DeconvNet.getDeconv()
+#
+#         print( "\nDimension of Deconvoluted images - Layer 1")
+#         print( dec1.shape )
+#         print( dec1 )
+#
+#         print( "\nDimension of Deconvoluted images - Layer 2")
+#         print( dec2.shape )
+#         print( dec2 )
+#
+#         print( "\nDimension of Deconvoluted images - Layer 3")
+#         print( dec3.shape )
+#         print( dec3 )
+                 
+         conv1, conv2, conv3 = net.getConvs()
+        
+         #Images within Layers (Aman)
+        
+         images_within_layer1 = net.activate( conv1, eval_data[0,], sess)
+         #np.save("tmp/DMF/FilterProjectionDMF_Layer1.npy", images_within_layer1)
+        
+         #images_within_layer2 = net.activate( conv2, eval_data[0,], sess)
+         #np.save("tmp/DMF/FilterProjectionDMF_Layer2.npy", images_within_layer2)
+         
+         #images_within_layer3 = net.activate( conv3, eval_data[0,], sess)
+         #np.save("tmp/DMF/FilterProjectionDMF_Layer3.npy", images_within_layer3)
+         
+         
 #        #a1 = dec1.eval()
 #        #plt.imshow(np.array(a1[0,:,:,0]) )
 #        #plt.show()
 #        
 #        #Activations part----------------------------
 #
-         np.save("tmp/DMF/eval_data_dmf.npy", eval_data[:100,])
-         
-         print("\n")
-         a1, b1, c1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100], n_best = 10, k = 9)
-         np.save("tmp/DMF/ActivationsDMF_Layer1.npy", a1)
-         np.save("tmp/DMF/BestImagesDMF_Layer1.npy", b1)
-         np.save("tmp/DMF/RandomFiltersIndex_Layer1.npy", c1)
-         print(a1.shape)
-        
-         print("\n")
-         a2, b2, c2 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100], n_best = 10, k = 9)
-         np.save("tmp/DMF/ActivationsDMF_Layer2.npy", a2)
-         np.save("tmp/DMF/BestImagesDMF_Layer2.npy", b2)
-         np.save("tmp/DMF/RandomFiltersIndex_Layer2.npy", c2)
-         print(a2.shape)  
-        
-         print("\n")
-         a3, b3, c3 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100], n_best = 10, k = 9)
-         np.save("tmp/DMF/ActivationsDMF_Layer3.npy", a3)
-         np.save("tmp/DMF/BestImagesDMF_Layer3.npy", b3)
-         np.save("tmp/DMF/RandomFiltersIndex_Layer3.npy", c3)
-         print(a3.shape)     
-        
-         #Weights part--------------------------------
-        
-         w1_t, w2_t, w3_t = net.getWeights()
-        
-         w1 = w1_t.eval()
-         np.save("tmp/DMF/WeightDMF_1.npy", w1)
-        
-         w2 = w2_t.eval()
-         np.save("tmp/DMF/WeightDMF_2.npy", w2)
-        
-         w3 = w3_t.eval()
-         np.save("tmp/DMF/WeightDMF_3.npy", w3)
+#         np.save("tmp/DMF/eval_data_dmf.npy", eval_data[:100,])
+#         
+#         print("\n")
+#         a1, b1, c1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100], n_best = 10, k = 9)
+#         np.save("tmp/DMF/ActivationsDMF_Layer1.npy", a1)
+#         np.save("tmp/DMF/BestImagesDMF_Layer1.npy", b1)
+#         np.save("tmp/DMF/RandomFiltersIndex_Layer1.npy", c1)
+#         print(a1.shape)
+#        
+#         print("\n")
+#         a2, b2, c2 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100], n_best = 10, k = 9)
+#         np.save("tmp/DMF/ActivationsDMF_Layer2.npy", a2)
+#         np.save("tmp/DMF/BestImagesDMF_Layer2.npy", b2)
+#         np.save("tmp/DMF/RandomFiltersIndex_Layer2.npy", c2)
+#         print(a2.shape)  
+#        
+#         print("\n")
+#         a3, b3, c3 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100], n_best = 10, k = 9)
+#         np.save("tmp/DMF/ActivationsDMF_Layer3.npy", a3)
+#         np.save("tmp/DMF/BestImagesDMF_Layer3.npy", b3)
+#         np.save("tmp/DMF/RandomFiltersIndex_Layer3.npy", c3)
+#         print(a3.shape)     
+#        
+#         #Weights part--------------------------------
+#        
+#         w1_t, w2_t, w3_t = net.getWeights()
+#        
+#         w1 = w1_t.eval()
+#         np.save("tmp/DMF/WeightDMF_1.npy", w1)
+#        
+#         w2 = w2_t.eval()
+#         np.save("tmp/DMF/WeightDMF_2.npy", w2)
+#        
+#         w3 = w3_t.eval()
+#         np.save("tmp/DMF/WeightDMF_3.npy", w3)
 
          # plt.imshow(np.array1(train_data[1,:,:,0]), cmap='gray')
          # plt.show()
