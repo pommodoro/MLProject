@@ -17,7 +17,7 @@ from scipy.misc import imsave
 ###
 class CnnMnist:
     
-    def __init__( self, session, n_in, n_out, mode ):
+    def __init__( self, session, n_in = 28*28, n_out = 10, mode = True ):
 
         # instantiate session
         self.session  = session
@@ -143,6 +143,45 @@ class CnnMnist:
     # method to instantiate deconvolutional neural net
     def createDeconvNet(self, inputImage, inputLabel):
         return CnnMnist.DeconvMnist( self, self.session, self.n_in, self.n_out, inputImage, inputLabel )
+
+    def activate(self, layer, image, sess):
+#    """
+#    Within a tensorflow session, calls plotfilter
+#    to display the activations of trained filters in a specific layer
+#    after passsing an image.
+#
+#    Parameters
+#    ----
+#    layer: int
+#    image: ndarray of length 784
+#    """
+        
+        
+        conv_layer = sess.run(layer, feed_dict={self.x:np.reshape(image, [ 10, 784], order='F')})
+        
+        self.plotfilter(conv_layer)
+        
+        return conv_layer
+    
+    def plotfilter(self, conv_layer):
+#    """
+    
+
+#    Parameters
+#    ----
+#    conv_layer = [?, 28, 28, 32] tensor
+#    """
+#    
+        filters=conv_layer.shape[3]
+        plt.figure(1,figsize=(25,25))
+        n_columns = 6
+        n_rows = math.ceil(filters / n_columns) + 1
+        for i in range(filters):
+            plt.subplot(n_rows, n_columns, i+1)
+            plt.title('Filter ' + str(i))
+            plt.imshow(conv_layer[0,:,:,i], interpolation="nearest", cmap="gray")
+
+
 
 #''' DON'T COMMENT ME PLEASE!!!
     ###
@@ -274,7 +313,7 @@ class CnnMnist:
 
         #Returns de deconvoluted layer1 as numpy array, with isolated nodes,
         #and save the images on the "img" folder
-        def displayFeatures1( self, inputImage, inputLabel):
+        def displayFeatures1( self, inputImage, inputLabel, n_best = 10, k = 9):
 
             #
             ## Deconvoluting 1st layer
@@ -283,18 +322,24 @@ class CnnMnist:
             # get activations for layer 1
             activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
             
-            filters = activations1.shape[-1]
-            batch_size = activations1.shape[0]
+            filters = random.sample(range(activations1.shape[-1]), k)
+            aux = activations1.shape[0] - n_best
             
-            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            all_isolations = np.zeros([k, n_best, 28, 28, 1])
+            j = 0
+            best_index = np.zeros([k, n_best])
             
-            for i in range(filters):
+            for i in filters:
             # Isolate filters
-                if i % 5 == 0:
-                    print("Deconvoluting Layer 1 activation number: {}".format(i))
+                print("Deconvoluting Layer 1 Filter: {}".format(i))
                 isolated = activations1.copy()
                 isolated[:,:,:,:i]   = 0
                 isolated[:,:,:,i+1:] = 0
+    
+                Norm1 = np.linalg.norm(isolated, axis = (2, 3))
+                Norm2 = np.linalg.norm(Norm1, axis = 1)
+                
+                best = np.where(aux <= np.argsort(Norm2))[0]
     
                 # convert from array to tensor
                 act1_tf = tf.convert_to_tensor( isolated, np.float32 )
@@ -315,15 +360,19 @@ class CnnMnist:
                     padding = "SAME"  )
                 
                 u = unConv1.eval()
+                
+                u = u[best,]
+                best_index[j,:] = best
+                
                 imsave("img/Deconv1_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
                 
-                all_isolations[i,:,:,:,:] = u
-                
+                all_isolations[j,:,:,:,:] = u
+                j = j + 1
             
-            return all_isolations
+            return all_isolations, best_index, filters
 
 
-        def displayFeatures2( self, inputImage, inputLabel):
+        def displayFeatures2( self, inputImage, inputLabel, n_best = 10, k = 9):
 
             ##
             ## Deconvoluting 2nd layer
@@ -332,18 +381,24 @@ class CnnMnist:
             # get activations for layer 2
             activations2 = self.calculateActivations(inputImage, inputLabel, 2)
             
-            filters = activations2.shape[-1]
-            batch_size = activations2.shape[0]
+            filters = random.sample(range(activations2.shape[-1]), k)
+            aux = activations2.shape[0] - n_best
             
-            all_isolations = np.zeros([filters, batch_size, 28, 28, 1])
+            all_isolations = np.zeros([k, n_best, 28, 28, 1])
+            j = 0
+            best_index = np.zeros([k, n_best])
             
-            for i in range(filters):
+            for i in filters:
             # Isolate filters
-                if i % 5 == 0:
-                    print("Deconvoluting Layer 2 activation number: {}".format(i))
+                print("Deconvoluting Layer 2 Filter: {}".format(i))
                 isolated = activations2.copy()
                 isolated[:,:,:,:i]   = 0
                 isolated[:,:,:,i+1:] = 0
+    
+                Norm1 = np.linalg.norm(isolated, axis = (2, 3))
+                Norm2 = np.linalg.norm(Norm1, axis = 1)
+                
+                best = np.where(aux <= np.argsort(Norm2))[0]
     
                 # convert from array to tensor
                 act1_tf = tf.convert_to_tensor( isolated, np.float32 )
@@ -380,12 +435,16 @@ class CnnMnist:
                     padding = "SAME"  )
                 
                 u = unConv2.eval()
+                
+                u = u[best,]
+                best_index[j,:] = best
+                
                 imsave("img/Deconv2_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
                 
-                all_isolations[i,:,:,:,:] = u
-                
+                all_isolations[j,:,:,:,:] = u
+                j = j + 1
             
-            return all_isolations
+            return all_isolations, best_index, filters
 
             # if layer == 1:
 

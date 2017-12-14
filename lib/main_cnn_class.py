@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import time
+import aux_functions as auxy
 
 # Import script with auxiliar functions
 import ConvDeconvClassesMnist as nets
@@ -43,58 +44,65 @@ def main(unused_argv):
     with tf.Session() as sess:
 
 
-        # instatiate Network
-        net = nets.CnnMnist(sess, 28*28, 10, True ) # True stands for training
-
-        #DeconvNet = net.createDeconvNet()
-
-        #act11  = DeconvNet.calculateActivations(train_data, train_labels, 1)
-        #plt.imshow(np.array(act11[5,:,:,2]), cmap='gray')
-        #plt.show()
-
-        # usual tf initialization
-        sess.run(tf.global_variables_initializer())
-
-        # make labels one-hot encoded
-        onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  10 ).eval()
-
-        # print error rate before training        
-        print('Aproximate error rate BEFORE training is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
-        # train network
-        #net.train( train_data, onehot_labels_train )
- 
-        # now train...
-        start = time.time()
-        
-        for i in range(max_iter):            
-            batch = random.sample(range( train_data.shape[0] ), batch_size)
-        
-            x_batch = train_data[batch,]
-            y_batch = onehot_labels_train[batch,]
-            
-            net.train(x_batch, y_batch)
-            
-            if i % 100 == 0:
-                print('Aproximate error rate during iteration {} is {} %'.format(i, round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
-            
-        elapsed = (time.time() - start)
-        
-        print("Total training time: {} seconds".format(round(elapsed,2)))
-        
-        print('Final aproximate training error is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
-        
-        print('Final test error is {} %'.format(round(np.sum(net.compute(eval_data)!=eval_labels) / eval_labels.size *100, 2)))
-        
-        # save the trained network 
-        net.netSaver("./tmp/cnnMnist")
+#        # instatiate Network
+#        net = nets.CnnMnist(sess, 28*28, 10, True ) # True stands for training
+#
+#        #DeconvNet = net.createDeconvNet()
+#
+#        #act11  = DeconvNet.calculateActivations(train_data, train_labels, 1)
+#        #plt.imshow(np.array(act11[5,:,:,2]), cmap='gray')
+#        #plt.show()
+#
+#        # usual tf initialization
+#        sess.run(tf.global_variables_initializer())
+#
+#        # make labels one-hot encoded
+#        onehot_labels_train = tf.one_hot( indices = tf.cast(train_labels, tf.int32), depth =  10 ).eval()
+#
+#        # print error rate before training        
+#        print('Aproximate error rate BEFORE training is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
+#        # train network
+#        #net.train( train_data, onehot_labels_train )
+# 
+#        # now train...
+#        start = time.time()
+#        
+#        for i in range(max_iter):            
+#            batch = random.sample(range( train_data.shape[0] ), batch_size)
+#        
+#            x_batch = train_data[batch,]
+#            y_batch = onehot_labels_train[batch,]
+#            
+#            net.train(x_batch, y_batch)
+#            
+#            if i % 100 == 0:
+#                print('Aproximate error rate during iteration {} is {} %'.format(i, round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
+#            
+#        elapsed = (time.time() - start)
+#        
+#        print("Total training time: {} seconds".format(round(elapsed,2)))
+#        
+#        print('Final aproximate training error is {} %'.format(round(np.sum(net.compute(train_data[:1000,])!=train_labels[:1000]) / train_labels[:1000].size *100, 2)))
+#        
+#        print('Final test error is {} %'.format(round(np.sum(net.compute(eval_data)!=eval_labels) / eval_labels.size *100, 2)))
+#        
+#        # save the trained network 
+#        net.netSaver("./tmp/cnnMnist")
 
         #''' DON'T COMMENT ME PLEASE!!!
         ##
         ## Deconvolution Part - until here it runs OK
         ##
-        
+  
+        # load trained model
+        net = nets.CnnMnist( sess ) 
+        net.netLoader( "./tmp/MNIST/cnnMnist" )
+
+        print( "loaded model" )
+
+      
         # instantiate deconv net
-        DeconvNet = net.createDeconvNet( train_data, train_labels )
+        DeconvNet = net.createDeconvNet( train_data[:100,], train_labels[:100] )
 
         print( "\nDimension of input data")
         print( train_data.shape)
@@ -114,16 +122,30 @@ def main(unused_argv):
 
         conv1, conv2 = net.getConvs()
         
+        #Images within Layers (Aman)
+        
+        images_within_layer1 = net.activate( conv1, eval_data[:10,], sess)
+        np.save("tmp/MNIST/FilterProjectionMnist_Layer1.npy", images_within_layer1)
+        
+        images_within_layer2 = net.activate( conv2, eval_data[:10,], sess)
+        np.save("tmp/MNIST/FilterProjectionMnist_Layer1.npy", images_within_layer2)
+        
         #Activations part----------------------------
         
-        print("\n")
-        a1 = DeconvNet.displayFeatures1(eval_data, eval_labels)
-        np.save("tmp/ActivationsMnist_Layer1.npy", a1)
-        print(a1.shape)
+        np.save("tmp/MNIST/eval_data_mnist.npy", eval_data[:100,])
         
         print("\n")
-        a2 = DeconvNet.displayFeatures2(eval_data, eval_labels)
-        np.save("tmp/ActivationsMnist_Layer2.npy", a2)
+        activations1, best1, filter_index1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
+        np.save("tmp/MNIST/ActivationsMnist_Layer1.npy", activations1)
+        np.save("tmp/MNIST/BestImagesMnist_Layer1.npy", best1)
+        np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer1.npy", filter_index1)
+        print(activations1.shape)
+        
+        print("\n")
+        a2, b2, c2 = DeconvNet.displayFeatures2(eval_data[:100,], eval_labels[:100])
+        np.save("tmp/MNIST/ActivationsMnist_Layer2.npy", a2)
+        np.save("tmp/MNIST/BestImagesMnist_Layer2.npy", b2)
+        np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer2.npy", c2)
         print(a2.shape)      
         
         #Weights part--------------------------------
@@ -131,10 +153,10 @@ def main(unused_argv):
         w1_t, w2_t = net.getWeights()
         
         w1 = w1_t.eval()
-        np.save("tmp/WeightMnist_1.npy", w1)
+        np.save("tmp/MNIST/WeightMnist_1.npy", w1)
         
         w2 = w2_t.eval()
-        np.save("tmp/WeightMnist_2.npy", w2)
+        np.save("tmp/MNIST/WeightMnist_2.npy", w2)
 
 
         

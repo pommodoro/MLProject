@@ -19,7 +19,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         filterSizePool1 = 2, strideFilter1 = 2,
         filterSizePool2 = 2, strideFilter2 = 2,
         filterSizePool3 = 2, strideFilter3 = 2,
-        nChannels = 3, mode = True ):
+        nChannels = 3, fcUnits = 1024, mode = True ):
 
     	# instantiate session
         self.session   = session
@@ -129,9 +129,9 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         #
         nReshape = (self.n_in/filterSizePool1/filterSizePool2/filterSizePool3) * (self.n_in/filterSizePool1/filterSizePool2/filterSizePool3) * nFiltersConv3
         pool3_flat = tf.reshape(self.pool3, [-1, int(nReshape)])
-        dense = tf.layers.dense(inputs=pool3_flat, units=1024, activation=tf.nn.relu)
+        dense = tf.layers.dense(inputs=pool3_flat, units=fcUnits, activation=tf.nn.relu)
         dropout = tf.layers.dropout(
-            inputs=dense, rate=0.4, training = self.mode )
+            inputs=dense, rate=0.3, training = self.mode )
 
         # Logits Layer
         self.logits = tf.layers.dense(inputs=dropout, units = self.n_out)
@@ -192,6 +192,46 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         loader = tf.train.Saver({"W_c1":self.W_c1, "W_c2":self.W_c2, "W_c3":self.W_c3})
         restoredModel= loader.restore(self.session, loadPath)
         print("Model restored from %s" % loadPath)
+
+
+    def activate(self, layer, image, sess):
+#    """
+#    Within a tensorflow session, calls plotfilter
+#    to display the activations of trained filters in a specific layer
+#    after passsing an image.
+#
+#    Parameters
+#    ----
+#    layer: int
+#    image: ndarray of length 784
+#    """
+        
+        
+        conv_layer = sess.run(layer, feed_dict={self.x:np.reshape(image, [ 1, 49152], order='F')})
+        
+        self.plotfilter(conv_layer)
+        
+        return conv_layer
+    
+    def plotfilter(self, conv_layer):
+#    """
+    
+
+#    Parameters
+#    ----
+#    conv_layer = [?, 28, 28, 32] tensor
+#    """
+#    
+        filters=conv_layer.shape[3]
+        plt.figure(1,figsize=(25,25))
+        n_columns = 6
+        n_rows = math.ceil(filters / n_columns) + 1
+        for i in range(filters):
+            plt.subplot(n_rows, n_columns, i+1)
+            plt.title('Filter ' + str(i))
+            plt.imshow(conv_layer[0,:,:,i], interpolation="nearest")
+
+
 
 
     ###
@@ -363,7 +403,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
 
         #Returns de deconvoluted layer1 as numpy array, with isolated nodes,
         #and save the images on the "img" folder
-        def displayFeatures1( self, inputImage, inputLabel):
+        def displayFeatures1( self, inputImage, inputLabel, n_best = 8, k = 6):
 
             #
             ## Deconvoluting 1st layer
@@ -372,32 +412,42 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             # get activations for layer 1
             activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
             
-            filters = activations1.shape[-1]
-            batch_size = activations1.shape[0]
+            filters = random.sample(range(activations1.shape[-1]), k)
+            aux = activations1.shape[0] - n_best
             
-            all_isolations = np.zeros([filters, batch_size, 128, 128, 3])
+            all_isolations = np.zeros([k, n_best, 128, 128, 3])
+            j = 0
+            best_index = np.zeros([k, n_best])
             
-            for i in range(filters):
+            for i in filters:
             # Isolate filters
-                if i % 5 == 0:
-                    print("Deconvoluting Layer 1 activation number: {}".format(i))
+                print("Deconvoluting Layer 1 Filter: {}".format(i))
                 isolated = activations1.copy()
                 isolated[:,:,:,:i]   = 0
                 isolated[:,:,:,i+1:] = 0
+
+                Norm1 = np.linalg.norm(isolated, axis = (2, 3))
+                Norm2 = np.linalg.norm(Norm1, axis = 1)
+
+                best = np.where(aux <= np.argsort(Norm2))[0]
 
                 # devonvolute
                 unConv1 = self.deconvLayer1( inputImage, inputLabel, isolated )
                 
                 u = unConv1.eval()
-                imsave("img/Deconv1_Node_{}_of_Image1.jpg".format(i), u[1,:,:,0])
                 
-                all_isolations[i,:,:,:,:] = u
+                u = u[best,]
+                best_index[j,:] = best
                 
+                imsave("img/Deconv1_Node_{}_of_Image1.jpg".format(i), u[0,:,:,:])
+                
+                all_isolations[j,:,:,:,:] = u
+                j = j + 1
             
-            return all_isolations
+            return all_isolations, best_index, filters
 
 
-        def displayFeatures2( self, inputImage, inputLabel):
+        def displayFeatures2( self, inputImage, inputLabel, n_best = 8, k = 6):
 
             ##
             ## Deconvoluting 2nd layer
@@ -406,32 +456,43 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             # get activations for layer 2
             activations2 = self.calculateActivations(inputImage, inputLabel, 2)
             
-            filters = activations2.shape[-1]
-            batch_size = activations2.shape[0]
+            filters = random.sample(range(activations2.shape[-1]), k)
+            aux = activations2.shape[0] - n_best
             
-            all_isolations = np.zeros([filters, batch_size, 128, 128, 3])
+            all_isolations = np.zeros([k, n_best, 128, 128, 3])
+            j = 0
+            best_index = np.zeros([k, n_best])
             
-            for i in range(filters):
+            for i in filters:
             # Isolate filters
-                if i % 5 == 0:
-                    print("Deconvoluting Layer 2 activation number: {}".format(i))
+                print("Deconvoluting Layer 2 Filter: {}".format(i))
                 isolated = activations2.copy()
                 isolated[:,:,:,:i]   = 0
                 isolated[:,:,:,i+1:] = 0
+        
+                Norm1 = np.linalg.norm(isolated, axis = (2, 3))
+                Norm2 = np.linalg.norm(Norm1, axis = 1)
+                
+                best = np.where(aux <= np.argsort(Norm2))[0]
         
                 # deconvolute
                 unConv2 = self.deconvLayer2( inputImage, inputLabel, isolated )
                 
                 u = unConv2.eval()
-                imsave("img/Deconv2_Node_{}_of_Image1.jpg".format(i), u[1,:,:,0])
                 
-                all_isolations[i,:,:,:,:] = u
+                u = u[best,]
+                best_index[j,:] = best
+                
+                imsave("img/Deconv2_Node_{}_of_Image1.jpg".format(i), u[0,:,:,:])
+                
+                all_isolations[j,:,:,:,:] = u
+                j = j + 1
                 
             
-            return all_isolations
+            return all_isolations, best_index, filters
 
 
-        def displayFeatures3( self, inputImage, inputLabel ):
+        def displayFeatures3( self, inputImage, inputLabel, n_best = 8, k = 6):
 
             ##
             ## Deconvoluting 2nd layer
@@ -440,10 +501,12 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
             # get activations for layer 2
             activations3 = self.calculateActivations(inputImage, inputLabel, 3)
             
-            filters = activations3.shape[-1]
-            batch_size = activations3.shape[0]
+            filters = random.sample(range(activations3.shape[-1]), k)
+            aux = activations3.shape[0] - n_best
             
-            all_isolations = np.zeros([filters, batch_size, 128, 128, 3])
+            all_isolations = np.zeros([k, n_best, 128, 128, 3])
+            j = 0
+            best_index = np.zeros([k, n_best])
             
             for i in range(filters):
             # Isolate filters
@@ -453,16 +516,26 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
                 isolated[:,:,:,:i]   = 0
                 isolated[:,:,:,i+1:] = 0
         
+                Norm1 = np.linalg.norm(isolated, axis = (2, 3))
+                Norm2 = np.linalg.norm(Norm1, axis = 1)
+                
+                best = np.where(aux <= np.argsort(Norm2))[0]
+        
                 # deconvolute
                 unConv3 = self.deconvLayer3( inputImage, inputLabel, isolated )
                 
                 u = unConv3.eval()
-                imsave("img/Deconv3_Node_{}_of_Image1.jpg".format(i), u[1,:,:,0])
                 
-                all_isolations[i,:,:,:,:] = u
+                u = u[best,]
+                best_index[j,:] = best
+                
+                imsave("img/Deconv3_Node_{}_of_Image1.jpg".format(i), u[0,:,:,:])
+                
+                all_isolations[j,:,:,:,:] = u
+                j = j + 1
                 
             
-            return all_isolations    
+            return all_isolations, best_index, filters  
 
 
         # calculate activations for layer (1 or 2)
