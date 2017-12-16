@@ -280,6 +280,13 @@ class CnnMnist:
 
             return unConv2
 
+        # Calculate activations for Relu layer ( 1 or 2)
+        def calculateActivationsFeature( self, inputImage, inputLabel, layer ):
+
+            if( layer == 1 ):
+                return self.cnn.relu1.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.inDim])})
+            else:
+                return self.cnn.relu2.eval(feed_dict={self.cnn.x: np.reshape(inputImage,[-1,self.inDim])})
 
         # calculate activations for layer (1 or 2)
         def calculateActivations( self, inputImage, inputLabel, layer ):
@@ -310,10 +317,70 @@ class CnnMnist:
             out_size = [-1] + [s * 2 for s in sh[1:-1]] + [sh[-1]]
             out = tf.reshape(out, out_size)#, name=scope)
             return out
-
+        
+        #Returns the random filter index with best activations for layer 1
+        
+        def bestActivation1( self, inputImage, inputLabel, n_best=3, k=3):
+            activations_layer1=self.calculateActivationsFeature( inputImage, inputLabel, 1)
+            random.seed(5)
+            filters_layer1=random.sample(range(activations_layer1.shape[-1]),k)
+            j=0
+            best_index=np.zeros([k,n_best])
+            
+            all_isolations = np.zeros([k, n_best, 28, 28, 1])
+            
+            
+            
+            for i in filters_layer1:
+                isolated=activations_layer1.copy()[:,:,:,i]
+                
+                Norm1 = np.linalg.norm(isolated,axis=(1,2))
+                #Norm2 = np.linalg.norm(Norm1, axis=1)
+                
+                best = np.argsort(Norm1)[-n_best:]
+                best_index[j,:]=best
+                
+                isolated=np.reshape(isolated[best,],(n_best,28,28,1))
+                
+                all_isolations[j,:,:,:,] = isolated
+                j=j+1
+                
+                
+                
+            return all_isolations,best_index, filters_layer1
+        
+        #Returns the random filter activation for layer 2
+        def bestActivation2( self, inputImage, inputLabel, n_best=3, k=3):
+            activations_layer2=self.calculateActivationsFeature( inputImage, inputLabel, 2)
+            random.seed(5)
+            filters_layer2=random.sample(range(activations_layer2.shape[-1]),k)
+            j=0
+            best_index=np.zeros([k,n_best])
+            
+            all_isolations = np.zeros([k, n_best, 14, 14, 1])
+            print(activations_layer2.shape)
+            
+            
+            for i in filters_layer2:
+                isolated=activations_layer2.copy()[:,:,:,i]
+                
+                Norm1 = np.linalg.norm(isolated,axis=(1,2))
+                #Norm2 = np.linalg.norm(Norm1, axis=1)
+                
+                best = np.argsort(Norm1)[-n_best:]
+                best_index[j,:]=best
+                
+                isolated=np.reshape(isolated[best,],(n_best,14,14,1))
+                
+                all_isolations[j,:,:,:,] = isolated
+                j=j+1
+               
+               
+               
+            return all_isolations,best_index, filters_layer2
         #Returns de deconvoluted layer1 as numpy array, with isolated nodes,
         #and save the images on the "img" folder
-        def displayFeatures1( self, inputImage, inputLabel, n_best = 10, k = 9):
+        def displayFeatures1( self, inputImage, inputLabel, n_best = 3, k = 3):
 
             #
             ## Deconvoluting 1st layer
@@ -321,7 +388,7 @@ class CnnMnist:
             
             # get activations for layer 1
             activations1 = self.calculateActivations( inputImage, inputLabel, 1 )
-            
+            random.seed(5)
             filters = random.sample(range(activations1.shape[-1]), k)
             aux = activations1.shape[0] - n_best
             
@@ -336,21 +403,17 @@ class CnnMnist:
                 isolated[:,:,:,:i]   = 0
                 isolated[:,:,:,i+1:] = 0
     
-                Norm1 = np.linalg.norm(isolated, axis = (2, 3))
-                Norm2 = np.linalg.norm(Norm1, axis = 1)
+                Norm1 = np.linalg.norm(isolated[:,:,:,i], axis = (1, 2))
+                #Norm2 = np.linalg.norm(Norm1, axis = 1)
                 
-                best = np.where(aux <= np.argsort(Norm2))[0]
-    
-                # convert from array to tensor
+                best = np.argsort(Norm1)[-n_best:]
+    #                # convert from array to tensor
                 act1_tf = tf.convert_to_tensor( isolated, np.float32 )
-    
-                # unpool
+    #                # unpool
                 unPool1 = self.unpool( act1_tf )
-    
-                # unrelu
+    #                # unrelu
                 unRelu1 = tf.nn.relu( unPool1 )
-    
-                # deconvolute (filter)
+    #                # deconvolute (filter)
                 unConv1 = tf.nn.conv2d_transpose(  # check dimensions
                     #activations1,
                     unRelu1,
@@ -363,16 +426,15 @@ class CnnMnist:
                 
                 u = u[best,]
                 best_index[j,:] = best
-                
-                imsave("img/Deconv1_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                ###
+                #imsave("img/Deconv1_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
                 
                 all_isolations[j,:,:,:,:] = u
                 j = j + 1
-            
-            return all_isolations, best_index, filters
+            return all_isolations,best_index, filters
 
 
-        def displayFeatures2( self, inputImage, inputLabel, n_best = 10, k = 9):
+        def displayFeatures2( self, inputImage, inputLabel, n_best = 3, k = 3):
 
             ##
             ## Deconvoluting 2nd layer
@@ -380,7 +442,7 @@ class CnnMnist:
 
             # get activations for layer 2
             activations2 = self.calculateActivations(inputImage, inputLabel, 2)
-            
+            random.seed(5)
             filters = random.sample(range(activations2.shape[-1]), k)
             aux = activations2.shape[0] - n_best
             
@@ -438,8 +500,8 @@ class CnnMnist:
                 
                 u = u[best,]
                 best_index[j,:] = best
-                
-                imsave("img/Deconv2_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+                ##imsave("img/Deconv2_Node_{}_of_N3.jpg".format(i), u[1,:,:,0])
+               
                 
                 all_isolations[j,:,:,:,:] = u
                 j = j + 1
