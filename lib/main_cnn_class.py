@@ -134,8 +134,20 @@ def main(unused_argv):
         
         np.save("tmp/MNIST/eval_data_mnist.npy", eval_data[:100,])
         
+        activations_feature1,best_feature1, filter_index_feature1=DeconvNet.bestActivation1(eval_data[:100],eval_labels[:100])
+        print(best_feature1)
+        np.save("tmp/MNIST/ActivationsMnist_Layer1_Features.npy", activations_feature1)
+        np.save("tmp/MNIST/BestImagesMnist_Layer1_Features.npy", best_feature1)
+        np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer1_Features.npy", filter_index_feature1)
         print("\n")
-        activations1, best1, filter_index1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
+        activations_feature2,best_feature2,filter_index_feature2=DeconvNet.bestActivation2(eval_data[:100],eval_labels[:100])
+        print(best_feature2)
+        np.save("tmp/MNIST/ActivationsMnist_Layer2_Features.npy", activations_feature2)
+        np.save("tmp/MNIST/BestImagesMnist_Layer2_Features.npy", best_feature2)
+        np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer2_Features.npy", filter_index_feature2)
+        print("\n")
+        activations1,best1, filter_index1 = DeconvNet.displayFeatures1(eval_data[:100,], eval_labels[:100])
+        print(best1)
         np.save("tmp/MNIST/ActivationsMnist_Layer1.npy", activations1)
         np.save("tmp/MNIST/BestImagesMnist_Layer1.npy", best1)
         np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer1.npy", filter_index1)
@@ -149,15 +161,14 @@ def main(unused_argv):
         print(a2.shape)      
         
         #Weights part--------------------------------
-        
+       
         w1_t, w2_t = net.getWeights()
         
         w1 = w1_t.eval()
         np.save("tmp/MNIST/WeightMnist_1.npy", w1)
-        
+        #
         w2 = w2_t.eval()
         np.save("tmp/MNIST/WeightMnist_2.npy", w2)
-
 
         
         #a1 = dec1.eval()
