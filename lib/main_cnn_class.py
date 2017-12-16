@@ -141,7 +141,7 @@ def main(unused_argv):
         np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer1_Features.npy", filter_index_feature1)
         print("\n")
         activations_feature2,best_feature2,filter_index_feature2=DeconvNet.bestActivation2(eval_data[:100],eval_labels[:100])
-        print(best_feature2)
+        print(filter_index_feature2)
         np.save("tmp/MNIST/ActivationsMnist_Layer2_Features.npy", activations_feature2)
         np.save("tmp/MNIST/BestImagesMnist_Layer2_Features.npy", best_feature2)
         np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer2_Features.npy", filter_index_feature2)
@@ -158,7 +158,7 @@ def main(unused_argv):
         np.save("tmp/MNIST/ActivationsMnist_Layer2.npy", a2)
         np.save("tmp/MNIST/BestImagesMnist_Layer2.npy", b2)
         np.save("tmp/MNIST/RandomFiltersIndexMnist_Layer2.npy", c2)
-        print(a2.shape)      
+        print(c2)      
         
         #Weights part--------------------------------
        
@@ -185,4 +185,5 @@ def main(unused_argv):
 #''' DON'T COMMENT ME PLEASE!!!
 if __name__ == "__main__":
   tf.app.run()
+
 
