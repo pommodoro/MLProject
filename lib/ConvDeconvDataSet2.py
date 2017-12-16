@@ -402,13 +402,13 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
 
         #Returns the random filter activation for layer 1
         def bestActivation1( self, inputImage, inputLabel, n_best=3, k=3):
-            activations_layer1=self.calculateActivationsFeature( inputImage, inputLabel, 1)
+            activations_layer1=self.calculateActivations( inputImage, inputLabel, 1)
             random.seed(3)
             filters_layer1=random.sample(range(activations_layer1.shape[-1]),k)
             j=0
             best_index=np.zeros([k,n_best])
             
-            all_isolations = np.zeros([k, n_best, 128, 128, 3])
+            all_isolations = np.zeros([k, n_best, 64, 64, 3])
             
             
             
@@ -421,7 +421,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
                 best = np.argsort(Norm1)[-n_best:]
                 best_index[j,:]=best
                 
-                isolated=np.reshape(isolated[best,],(n_best,128,128,3))
+                isolated=np.reshape(isolated[best,],(n_best,64,64,3))
                 
                 all_isolations[j,:,:,:,] = isolated
                 j=j+1
@@ -432,13 +432,13 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         
         #Returns the random filter activation for layer 2
         def bestActivation2( self, inputImage, inputLabel, n_best=3, k=3):
-            activations_layer2=self.calculateActivationsFeature( inputImage, inputLabel, 2)
+            activations_layer2=self.calculateActivations( inputImage, inputLabel, 2)
             random.seed(3)
             filters_layer2=random.sample(range(activations_layer2.shape[-1]),k)
             j=0
             best_index=np.zeros([k,n_best])
             
-            all_isolations = np.zeros([k, n_best, 64, 64, 3])
+            all_isolations = np.zeros([k, n_best, 32, 32, 3])
             #print(activations_layer2.shape)
             
             
@@ -451,7 +451,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
                 best = np.argsort(Norm1)[-n_best:]
                 best_index[j,:]=best
                 
-                isolated=np.reshape(isolated[best,],(n_best,64,64,3))
+                isolated=np.reshape(isolated[best,],(n_best,32,32,3))
                 
                 all_isolations[j,:,:,:,] = isolated
                 j=j+1
@@ -462,13 +462,13 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
         
         #Returns the random filter activation for layer 3
         def bestActivation3( self, inputImage, inputLabel, n_best=3, k=3):
-            activations_layer3=self.calculateActivationsFeature( inputImage, inputLabel, 3)
+            activations_layer3=self.calculateActivations( inputImage, inputLabel, 3)
             random.seed(5)
             filters_layer3=random.sample(range(activations_layer3.shape[-1]),k)
             j=0
             best_index=np.zeros([k,n_best])
             
-            all_isolations = np.zeros([k, n_best, 64, 64, 3])
+            all_isolations = np.zeros([k, n_best, 16, 16, 3])
             #print(activations_layer2.shape)
             
             
@@ -481,7 +481,7 @@ class CnnData2: ##### OBS: only works if stride size = filter size of pooling la
                 best = np.argsort(Norm1)[-n_best:]
                 best_index[j,:]=best
                 
-                isolated=np.reshape(isolated[best,],(n_best,32,32,3))
+                isolated=np.reshape(isolated[best,],(n_best,16,16,3))
                 
                 all_isolations[j,:,:,:,] = isolated
                 j=j+1

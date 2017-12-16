@@ -321,13 +321,13 @@ class CnnMnist:
         #Returns the random filter index with best activations for layer 1
         
         def bestActivation1( self, inputImage, inputLabel, n_best=3, k=3):
-            activations_layer1=self.calculateActivationsFeature( inputImage, inputLabel, 1)
+            activations_layer1=self.calculateActivations( inputImage, inputLabel, 1)
             random.seed(5)
             filters_layer1=random.sample(range(activations_layer1.shape[-1]),k)
             j=0
             best_index=np.zeros([k,n_best])
             
-            all_isolations = np.zeros([k, n_best, 28, 28, 1])
+            all_isolations = np.zeros([k, n_best, 14, 14, 1])
             
             
             
@@ -340,7 +340,7 @@ class CnnMnist:
                 best = np.argsort(Norm1)[-n_best:]
                 best_index[j,:]=best
                 
-                isolated=np.reshape(isolated[best,],(n_best,28,28,1))
+                isolated=np.reshape(isolated[best,],(n_best,14,14,1))
                 
                 all_isolations[j,:,:,:,] = isolated
                 j=j+1
@@ -351,13 +351,13 @@ class CnnMnist:
         
         #Returns the random filter activation for layer 2
         def bestActivation2( self, inputImage, inputLabel, n_best=3, k=3):
-            activations_layer2=self.calculateActivationsFeature( inputImage, inputLabel, 2)
+            activations_layer2=self.calculateActivations( inputImage, inputLabel, 2)
             random.seed(5)
             filters_layer2=random.sample(range(activations_layer2.shape[-1]),k)
             j=0
             best_index=np.zeros([k,n_best])
             
-            all_isolations = np.zeros([k, n_best, 14, 14, 1])
+            all_isolations = np.zeros([k, n_best, 7, 7, 1])
             print(activations_layer2.shape)
             
             
@@ -370,7 +370,7 @@ class CnnMnist:
                 best = np.argsort(Norm1)[-n_best:]
                 best_index[j,:]=best
                 
-                isolated=np.reshape(isolated[best,],(n_best,14,14,1))
+                isolated=np.reshape(isolated[best,],(n_best,7,7,1))
                 
                 all_isolations[j,:,:,:,] = isolated
                 j=j+1
@@ -457,10 +457,10 @@ class CnnMnist:
                 isolated[:,:,:,:i]   = 0
                 isolated[:,:,:,i+1:] = 0
     
-                Norm1 = np.linalg.norm(isolated, axis = (2, 3))
-                Norm2 = np.linalg.norm(Norm1, axis = 1)
+                Norm1 = np.linalg.norm(isolated[:,:,:,i], axis = (1, 2))
+                #Norm2 = np.linalg.norm(Norm1, axis = 1)
                 
-                best = np.where(aux <= np.argsort(Norm2))[0]
+                best =  np.argsort(Norm1)[-n_best:]
     
                 # convert from array to tensor
                 act1_tf = tf.convert_to_tensor( isolated, np.float32 )
