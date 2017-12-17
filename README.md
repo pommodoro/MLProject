@@ -1,4 +1,4 @@
-# Advanced Machine Learning: Final Projecyt
+# Advanced Machine Learning: Final Project
 
 Term: Fall 2017
 

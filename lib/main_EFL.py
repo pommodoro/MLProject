@@ -23,7 +23,7 @@ def main(unused_argv):
   ## Generate letters E,F,L
   ############################################
 
-  train_data, train_labels, test_data, test_labels = aux.generateLetterData( 6000, 1200, True, 234 )
+  train_data, train_labels, test_data, test_labels = aux.generateLetterData( 9999, 1200, True, 234 )
 
   print("Letter Data Dimensions")
   print("train_data")
@@ -61,6 +61,8 @@ def main(unused_argv):
         # now train...
         for i in range(3000):
             net.train(train_data,onehot_labels_train.eval())
+            if( i % 50 == 0):
+              print('error rate during training at iteration {} is {}'.format( i, ( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
         
         # print MSE after training
         print('error rate AFTER training is {}'.format(( np.sum(net.compute(train_data)!=train_labels) / train_labels.size)))
