@@ -1,0 +1,40 @@
+\begin{thebibliography}{1}
+
+\bibitem{distill}
+Ludwig~Schubert Chris~Olah, Alexander~Mordvintsev.
+\newblock Feature visualization.
+\newblock {\em Distill}, November 2017.
+
+\bibitem{cnnvis}
+Javi Ribera~Falak Bhagyesh~Vikani, Sebastien~Debia.
+
+\bibitem{zeiler}
+Rob~Fergus Matthew D.~Zeiler.
+\newblock Visualizing and understanding convolutional networks.
+\newblock 28 November 2013.
+
+\bibitem{oxford}
+Maxim Tatarchenko Thomas~Brox Alexey~Dosovitskiy, Jost Tobias~Springenberg.
+\newblock Learning to generate chairs, tables and cars with convolutional
+  networks.
+\newblock {\em IEEE Xplore}, 2014.
+
+\bibitem{kvfrans}
+Visualizing features from a convolutional neural network.
+
+\bibitem{bengio}
+Dumitru Erhan, Y~Bengio, Aaron Courville, and Pascal Vincent.
+\newblock Visualizing higher-layer features of a deep network.
+\newblock 01 2009.
+
+\bibitem{resampling}
+Eric P. Xing Stephanie Rosenthal Manuela~Veloso Benjamin J.~Lengerich,
+  Sandeep~Konam.
+\newblock Towards visual explanations for convolutional neural networks via
+  input resampling.
+\newblock 16 August 2017.
+
+\bibitem{koman}
+Vision-based navigation and deep-learning explanation for autonomy, May 2017.
+
+\end{thebibliography}
